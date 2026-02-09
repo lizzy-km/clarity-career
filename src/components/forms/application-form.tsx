@@ -16,7 +16,7 @@ const applicationFormSchema = z.object({
   email: z.string().email("A valid email is required."),
   phone: z.string().optional(),
   portfolioUrl: z.string().url("Please enter a valid URL.").or(z.literal('')).optional(),
-  coverLetter: z.string().min(20, "Please write a short cover letter.").optional(),
+  coverLetter: z.string().optional(),
   // resume: ... for file upload later
 });
 
@@ -57,7 +57,7 @@ export function ApplicationForm({ user, job, onSubmit }: ApplicationFormProps) {
           name="coverLetter"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Cover Letter</FormLabel>
+              <FormLabel>Cover Letter (Optional)</FormLabel>
               <FormControl>
                 <Textarea placeholder={`Write a brief message to ${job.company} about why you're a good fit for the ${job.title} role.`} {...field} rows={5} />
               </FormControl>
@@ -88,4 +88,3 @@ export function ApplicationForm({ user, job, onSubmit }: ApplicationFormProps) {
     </Form>
   );
 }
-

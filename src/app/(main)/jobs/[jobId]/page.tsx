@@ -2,12 +2,12 @@
 'use client';
 import { useParams, useRouter } from 'next/navigation';
 import { useDoc, useUser, useFirestore } from '@/firebase';
-import type { Job, UserProfile } from '@/lib/types';
+import type { Job } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { MapPin, Briefcase, DollarSign, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ApplicationForm, ApplicationFormData } from '@/components/forms/application-form';
