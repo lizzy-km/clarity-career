@@ -1,9 +1,13 @@
+
 export interface UserProfile {
   uid: string;
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
   role: 'employee' | 'employer';
+  phone?: string;
+  portfolioUrl?: string;
+  resumeUrl?: string;
   workExperience?: WorkExperience[];
   education?: Education[];
   skills?: string[];
@@ -34,13 +38,14 @@ export interface Company {
     logoUrl: string;
     website?: string;
     description?: string;
+    ownerId?: string;
 }
 
 export interface Job {
   id: string;
   title: string;
   company: string;
-  companyId?: string;
+  companyId: string;
   location: string;
   salaryMin: number;
   salaryMax: number;
@@ -92,11 +97,19 @@ export interface InterviewExperience {
 export interface Application {
   id: string;
   jobId: string;
-  userId: string;
-  status: 'Saved' | 'Applied' | 'Interviewing' | 'Offered' | 'Rejected';
-  appliedAt: Date | null;
+  companyId: string;
+  applicantId: string;
+  status: 'Applied' | 'Interviewing' | 'Offered' | 'Rejected';
+  submittedAt: Date;
   // Denormalized job data
   jobTitle: string;
   company: string;
   companyLogoUrl: string;
+  // Applicant data snapshot
+  applicantName: string;
+  applicantEmail: string;
+  applicantPhone?: string;
+  applicantPortfolio?: string;
+  coverLetter?: string;
+  resumeUrl?: string;
 }

@@ -2,12 +2,13 @@
 import { collection, addDoc, serverTimestamp, doc, setDoc, updateDoc, Firestore, getDoc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import type { Job, UserProfile, WorkExperience, Education } from '@/lib/types';
+import type { Job, UserProfile } from '@/lib/types';
 import type { ReviewFormData } from '@/components/forms/review-form';
 import type { InterviewFormData } from '@/components/forms/interview-form';
 import type { SalaryFormData } from '@/app/(main)/salaries/page';
 import type { CompanyFormData } from '@/components/forms/company-form';
 import type { JobFormData } from '@/components/forms/job-form';
+import type { ApplicationFormData } from '@/components/forms/application-form';
 
 
 export async function addReview(db: Firestore, user: UserProfile, data: ReviewFormData) {
@@ -85,52 +86,40 @@ export async function addSalary(db: Firestore, user: UserProfile | null, data: S
     });
 }
 
-export function saveApplication(db: Firestore, userId: string, job: Job) {
-  const applicationRef = doc(db, 'users', userId, 'applications', job.id);
-  setDoc(applicationRef, {
-    jobId: job.id,
-    userId: userId,
-    status: 'Saved',
-    appliedAt: null,
-    jobTitle: job.title,
-    company: job.company,
-    companyLogoUrl: job.companyLogoUrl,
-  }).catch(async (serverError) => {
-    const permissionError = new FirestorePermissionError({
-      path: applicationRef.path,
-      operation: 'create',
-      requestResourceData: { jobId: job.id, status: 'Saved' },
+export function submitApplication(db: Firestore, user: UserProfile, job: Job, applicationData: ApplicationFormData) {
+    const applicationRef = collection(db, 'applications');
+    addDoc(applicationRef, {
+        // Job info
+        jobId: job.id,
+        companyId: job.companyId,
+        jobTitle: job.title,
+        company: job.company,
+        companyLogoUrl: job.companyLogoUrl,
+        // Applicant Info
+        applicantId: user.uid,
+        applicantName: applicationData.name,
+        applicantEmail: applicationData.email,
+        applicantPhone: applicationData.phone,
+        applicantPortfolio: applicationData.portfolioUrl,
+        coverLetter: applicationData.coverLetter,
+        // resumeUrl: applicationData.resumeUrl, // Add when file upload is ready
+        // Status
+        status: 'Applied',
+        submittedAt: serverTimestamp(),
+    }).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: applicationRef.path,
+            operation: 'create',
+            requestResourceData: applicationData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
     });
-    errorEmitter.emit('permission-error', permissionError);
-  });
 }
 
-export function applyForJob(db: Firestore, userId: string, job: Job) {
-  const applicationRef = doc(db, 'users', userId, 'applications', job.id);
-  setDoc(applicationRef, {
-    jobId: job.id,
-    userId: userId,
-    status: 'Applied',
-    appliedAt: serverTimestamp(),
-    jobTitle: job.title,
-    company: job.company,
-    companyLogoUrl: job.companyLogoUrl,
-  }).catch(async (serverError) => {
-    const permissionError = new FirestorePermissionError({
-      path: applicationRef.path,
-      operation: 'create',
-      requestResourceData: { jobId: job.id, status: 'Applied' },
-    });
-    errorEmitter.emit('permission-error', permissionError);
-  });
-}
 
-export function updateApplicationStatus(db: Firestore, userId: string, applicationId: string, status: string) {
-  const applicationRef = doc(db, 'users', userId, 'applications', applicationId);
-  const dataToUpdate: { status: string; appliedAt?: any } = { status };
-  if (status === 'Applied') {
-    dataToUpdate.appliedAt = serverTimestamp();
-  }
+export function updateApplicationStatus(db: Firestore, applicationId: string, status: string) {
+  const applicationRef = doc(db, 'applications', applicationId);
+  const dataToUpdate = { status };
 
   updateDoc(applicationRef, dataToUpdate)
     .catch(async (serverError) => {
@@ -147,6 +136,7 @@ export function addCompany(db: Firestore, user: UserProfile, data: CompanyFormDa
     const companyRef = collection(db, 'companies');
     addDoc(companyRef, {
         ...data,
+        ownerId: user.uid,
     }).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: 'companies',
@@ -163,6 +153,18 @@ export async function addJob(db: Firestore, user: UserProfile, data: JobFormData
         throw new Error("Company not found");
     }
     const companyData = companySnap.data();
+
+    // Security check: ensure the user owns the company
+    if (companyData.ownerId !== user.uid) {
+        const permissionError = new FirestorePermissionError({
+            path: 'jobs',
+            operation: 'create',
+            requestResourceData: data,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        return;
+    }
+
 
     const jobRef = collection(db, 'jobs');
     addDoc(jobRef, {
@@ -186,7 +188,7 @@ export async function addJob(db: Firestore, user: UserProfile, data: JobFormData
     });
 }
 
-export function updateUserProfile(db: Firestore, userId: string, data: Partial<Pick<UserProfile, 'displayName' | 'photoURL' | 'workExperience' | 'education' | 'skills'>>) {
+export function updateUserProfile(db: Firestore, userId: string, data: Partial<UserProfile>) {
   const profileRef = doc(db, 'users', userId);
   updateDoc(profileRef, data)
     .catch(async (serverError) => {
@@ -198,3 +200,4 @@ export function updateUserProfile(db: Firestore, userId: string, data: Partial<P
         errorEmitter.emit('permission-error', permissionError);
     });
 }
+

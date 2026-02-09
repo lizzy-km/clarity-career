@@ -1,3 +1,4 @@
+
 'use client';
 import { useCollection, useUser, useFirestore } from '@/firebase';
 import type { Application } from '@/lib/types';
@@ -10,9 +11,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { query, where } from 'firebase/firestore';
 
 const statusStyles = {
-    'Saved': 'default',
     'Applied': 'secondary',
     'Interviewing': 'default',
     'Offered': 'default',
@@ -47,13 +48,20 @@ function ApplicationRowSkeleton() {
 
 export default function ApplicationsPage() {
   const { user } = useUser();
-  const { data: applications, loading } = useCollection<Application>( `users/${user?.uid}/applications`);
   const firestore = useFirestore();
+  
+  const applicationsQuery = user ? query(
+    collection(firestore, 'applications'),
+    where('applicantId', '==', user.uid)
+  ) : null;
+  
+  const { data: applications, loading } = useCollection<Application>(`applications`, applicationsQuery);
+
   const { toast } = useToast();
 
   const handleStatusChange = (applicationId: string, status: string) => {
     if (!user) return;
-    updateApplicationStatus(firestore, user.uid, applicationId, status);
+    updateApplicationStatus(applicationId, status);
     toast({
         title: "Status Updated",
         description: `The application status has been changed to ${status}.`
@@ -74,7 +82,7 @@ export default function ApplicationsPage() {
               <TableRow>
                 <TableHead>Job</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Date Updated</TableHead>
+                <TableHead>Date Submitted</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -97,7 +105,6 @@ export default function ApplicationsPage() {
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="Saved"><Badge variant={statusStyles['Saved']}>Saved</Badge></SelectItem>
                             <SelectItem value="Applied"><Badge variant={statusStyles['Applied']}>Applied</Badge></SelectItem>
                             <SelectItem value="Interviewing"><Badge variant={statusStyles['Interviewing']}>Interviewing</Badge></SelectItem>
                             <SelectItem value="Offered"><Badge className="bg-green-500 hover:bg-green-600">Offered</Badge></SelectItem>
@@ -105,12 +112,19 @@ export default function ApplicationsPage() {
                         </SelectContent>
                     </Select>
                   </TableCell>
-                  <TableCell>{app.appliedAt ? new Intl.DateTimeFormat('en-US').format(new Date(app.appliedAt as any)) : '-'}</TableCell>
+                  <TableCell>{app.submittedAt ? new Intl.DateTimeFormat('en-US').format(new Date(app.submittedAt as any)) : '-'}</TableCell>
                   <TableCell className="text-right">
                     <Link href={`/jobs/${app.jobId}`} className="text-primary hover:underline text-sm font-medium">View Job</Link>
                   </TableCell>
                 </TableRow>
               ))}
+               {!loading && applications?.length === 0 && (
+                <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground py-16">
+                        You haven't applied to any jobs yet.
+                    </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -118,3 +132,4 @@ export default function ApplicationsPage() {
     </div>
   );
 }
+
