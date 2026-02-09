@@ -1,5 +1,9 @@
+"use client";
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Briefcase, Building2, DollarSign, MessageSquare, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,6 +38,19 @@ export default function HomePage() {
       link: '/interviews',
     },
   ];
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      router.push(`/jobs?q=${encodeURIComponent(searchTerm.trim())}`);
+    } else {
+      router.push('/jobs');
+    }
+  };
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -62,19 +79,21 @@ export default function HomePage() {
             <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-primary-foreground/90 drop-shadow-md animate-fade-in-up">
               Access transparent job listings, company reviews, salary data, and interview insights.
             </p>
-            <div className="mt-8 max-w-xl mx-auto flex gap-2 animate-fade-in-up-delay">
+            <form onSubmit={handleSearch} className="mt-8 w-full max-w-xl mx-auto flex gap-2 animate-fade-in-up-delay">
               <div className="relative flex-grow">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder="Job title, company, or keyword"
                   className="pl-10 h-12 text-base text-foreground"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button size="lg" className="h-12 bg-accent hover:bg-accent/90">
+              <Button type="submit" size="lg" className="h-12 bg-accent hover:bg-accent/90">
                 Search
               </Button>
-            </div>
+            </form>
           </div>
         </section>
 

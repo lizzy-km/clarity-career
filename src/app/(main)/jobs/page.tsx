@@ -1,6 +1,6 @@
 
 'use client';
-import { useState } from 'react';
+import React, { useState, useMemo, Suspense } from 'react';
 import { useCollection, useFirestore, useUser } from '@/firebase';
 import type { Job, UserProfile } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +12,7 @@ import { MapPin, Briefcase, DollarSign, Bookmark } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { saveApplication, addJob } from '@/firebase/firestore/writes';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { JobForm, JobFormData } from '@/components/forms/job-form';
 
@@ -80,14 +80,41 @@ function JobCardSkeleton() {
     )
 }
 
-export default function JobsPage() {
+function JobsPageContent() {
   const { data: jobs, loading } = useCollection<Job>('jobs');
   const industries = [...new Set(jobs?.map(job => job.industry) || [])];
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isFormOpen, setFormOpen] = useState(false);
+
+  // States for filters
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
+  const [location, setLocation] = useState('');
+  const [industry, setIndustry] = useState('all');
+  const [minSalary, setMinSalary] = useState('');
+  const [maxSalary, setMaxSalary] = useState('');
+
+
+  const filteredJobs = useMemo(() => {
+    if (!jobs) return [];
+    
+    return jobs.filter(job => {
+      const minSal = minSalary ? parseInt(minSalary, 10) : 0;
+      const maxSal = maxSalary ? parseInt(maxSalary, 10) : Infinity;
+
+      return (
+        (job.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+         job.company.toLowerCase().includes(searchTerm.toLowerCase()) || 
+         job.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        job.location.toLowerCase().includes(location.toLowerCase()) &&
+        (industry === 'all' || job.industry === industry) &&
+        (job.salaryMax >= minSal && job.salaryMin <= maxSal)
+      );
+    });
+  }, [jobs, searchTerm, location, industry, minSalary, maxSalary]);
 
   const handleSaveJob = (job: Job) => {
     if (!user) {
@@ -115,6 +142,15 @@ export default function JobsPage() {
     });
     setFormOpen(false);
   }
+  
+  const clearFilters = () => {
+    setSearchTerm('');
+    setLocation('');
+    setIndustry('all');
+    setMinSalary('');
+    setMaxSalary('');
+    router.replace('/jobs');
+  }
 
   return (
     <div>
@@ -138,9 +174,19 @@ export default function JobsPage() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 p-4 border rounded-lg bg-card">
-        <Input placeholder="Job title, keywords..." className="md:col-span-2 h-12" />
-        <Input placeholder="Location (e.g., San Francisco)" className="h-12" />
-        <Select>
+        <Input 
+            placeholder="Job title, keywords..." 
+            className="md:col-span-2 h-12"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Input 
+            placeholder="Location (e.g., San Francisco)" 
+            className="h-12" 
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+        />
+        <Select value={industry} onValueChange={setIndustry}>
           <SelectTrigger className="h-12">
             <SelectValue placeholder="Industry" />
           </SelectTrigger>
@@ -150,19 +196,47 @@ export default function JobsPage() {
           </SelectContent>
         </Select>
         <div className="flex items-center gap-2 md:col-span-4">
-          <Input type="number" placeholder="Min Salary" className="h-12" />
+          <Input 
+            type="number" 
+            placeholder="Min Salary" 
+            className="h-12" 
+            value={minSalary}
+            onChange={(e) => setMinSalary(e.target.value)}
+          />
           <span className="text-muted-foreground">-</span>
-          <Input type="number" placeholder="Max Salary" className="h-12" />
-          <Button className="md:col-start-4 h-12 w-full md:w-auto">Search</Button>
+          <Input 
+            type="number" 
+            placeholder="Max Salary" 
+            className="h-12" 
+            value={maxSalary}
+            onChange={(e) => setMaxSalary(e.target.value)}
+          />
+          <Button onClick={clearFilters} variant="outline" className="md:col-start-4 h-12 w-full md:w-auto">Clear Filters</Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {loading && <> <JobCardSkeleton /> <JobCardSkeleton /> <JobCardSkeleton /> <JobCardSkeleton /> </>}
-        {jobs?.map(job => (
+        {filteredJobs.map(job => (
           <JobCard key={job.id} job={job} onSave={handleSaveJob} />
         ))}
+         {!loading && filteredJobs.length === 0 && (
+            <div className="lg:col-span-2 text-center text-muted-foreground py-16">
+                <p className="text-lg font-semibold">No jobs found</p>
+                <p>Try adjusting your search filters or clearing them.</p>
+            </div>
+        )}
       </div>
     </div>
   );
+}
+
+
+export default function JobsPage() {
+    const loadingSkeletons = <> <JobCardSkeleton /> <JobCardSkeleton /> <JobCardSkeleton /> <JobCardSkeleton /> </>;
+    return (
+        <Suspense fallback={loadingSkeletons}>
+            <JobsPageContent />
+        </Suspense>
+    )
 }
