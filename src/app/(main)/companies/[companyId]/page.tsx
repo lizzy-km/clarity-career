@@ -7,6 +7,7 @@ import { collection, query, where } from 'firebase/firestore';
 import type { Company, Job, CompanyReview, SalaryData, UserProfile } from '@/lib/types';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -92,13 +93,13 @@ export default function CompanyDetailPage() {
 
   const { data: company, loading: companyLoading } = useDoc<Company>('companies', companyId);
 
-  const jobsQuery = companyId ? query(collection(firestore, 'jobs'), where('companyId', '==', companyId)) : null;
+  const jobsQuery = useMemo(() => (companyId ? query(collection(firestore, 'jobs'), where('companyId', '==', companyId)) : null), [firestore, companyId]);
   const { data: jobs, loading: jobsLoading } = useCollection<Job>('jobs', jobsQuery);
 
-  const reviewsQuery = companyId ? query(collection(firestore, 'reviews'), where('companyId', '==', companyId)) : null;
+  const reviewsQuery = useMemo(() => (companyId ? query(collection(firestore, 'reviews'), where('companyId', '==', companyId)) : null), [firestore, companyId]);
   const { data: reviews, loading: reviewsLoading } = useCollection<CompanyReview>('reviews', reviewsQuery);
 
-  const salariesQuery = companyId ? query(collection(firestore, 'salaries'), where('companyId', '==', companyId)) : null;
+  const salariesQuery = useMemo(() => (companyId ? query(collection(firestore, 'salaries'), where('companyId', '==', companyId)) : null), [firestore, companyId]);
   const { data: salaries, loading: salariesLoading } = useCollection<SalaryData>('salaries', salariesQuery);
 
   const loading = companyLoading || jobsLoading || reviewsLoading || salariesLoading;
