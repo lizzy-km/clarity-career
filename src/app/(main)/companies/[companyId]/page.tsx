@@ -30,7 +30,7 @@ function JobListItem({ job, user, onSave, isSaved }: { job: Job, user: UserProfi
             </div>
             <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">{`$${(job.salaryMin / 1000)}k - $${(job.salaryMax / 1000)}k`}</span>
-                {user && user.role === 'employee' && (
+                {user && (
                     <Button variant="ghost" size="icon" onClick={() => onSave(job.id)}>
                         <Heart className={isSaved ? "fill-red-500 text-red-500" : "text-muted-foreground"} />
                     </Button>
