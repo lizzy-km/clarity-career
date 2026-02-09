@@ -69,9 +69,7 @@ export default function LoginPage() {
     }
   };
 
-  if (userLoading || user) {
-    return null;
-  }
+ 
 
   return (
     <Card className="w-full max-w-sm">
