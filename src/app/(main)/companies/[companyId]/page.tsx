@@ -92,17 +92,21 @@ export default function CompanyDetailPage() {
 
   const { data: company, loading: companyLoading } = useDoc<Company>('companies', companyId);
 
-  const jobsQuery = companyId ? query(collection(firestore, 'jobs'), where('companyId', '==', companyId)) : null;
-  const { data: jobs, loading: jobsLoading } = useCollection<Job>('jobs', jobsQuery);
+  const jobsQuery =  query(collection(firestore, 'jobs'), where('companyId', '==', companyId??'empty'));
+//   const { data: jobs, loading: jobsLoading } = useCollection<Job>('jobs', jobsQuery);
 
-  const reviewsQuery = companyId ? query(collection(firestore, 'reviews'), where('companyId', '==', companyId)) : null;
-  const { data: reviews, loading: reviewsLoading } = useCollection<CompanyReview>('reviews', reviewsQuery);
+  const reviewsQuery =  query(collection(firestore, 'reviews'), where('companyId', '==', companyId??'empty')) 
+//   const { data: reviews, loading: reviewsLoading } = useCollection<CompanyReview>('reviews', reviewsQuery);
 
-  const salariesQuery = companyId ? query(collection(firestore, 'salaries'), where('companyId', '==', companyId)) : null;
-  const { data: salaries, loading: salariesLoading } = useCollection<SalaryData>('salaries', salariesQuery);
+  const salariesQuery =  query(collection(firestore, 'salaries'), where('companyId', '==', companyId??'empty')) 
+//   const { data: salaries, loading: salariesLoading } = useCollection<SalaryData>('salaries', salariesQuery);
 
-  const loading = companyLoading || jobsLoading || reviewsLoading || salariesLoading;
+//   const loading = companyLoading || jobsLoading || reviewsLoading || salariesLoading;
 
+
+const loading = false
+
+  console.log('bbbbb')
   const handleSaveToggle = (jobId: string) => {
     if (!user) {
         toast({ variant: "destructive", title: "Login required", description: "You need to be logged in to save jobs." });
@@ -164,7 +168,7 @@ export default function CompanyDetailPage() {
         {company.description && <p className="text-foreground/80">{company.description}</p>}
       </header>
 
-      <Tabs defaultValue="jobs">
+      {/* <Tabs defaultValue="jobs">
           <TabsList className="mb-4">
               <TabsTrigger value="jobs">Jobs ({jobs?.length || 0})</TabsTrigger>
               <TabsTrigger value="reviews">Reviews ({reviews?.length || 0})</TabsTrigger>
@@ -218,7 +222,7 @@ export default function CompanyDetailPage() {
                   </Table>
               </Card>
           </TabsContent>
-      </Tabs>
+      </Tabs> */}
 
     </div>
   );

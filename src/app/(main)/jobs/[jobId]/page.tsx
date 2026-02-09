@@ -70,6 +70,8 @@ export default function JobDetailPage() {
             </div>
         );
     }
+// 
+    // console.log(user)
 
     if (!job) {
         return <div className="container text-center py-16">Job not found.</div>;

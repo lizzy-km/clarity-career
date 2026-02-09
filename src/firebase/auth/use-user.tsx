@@ -21,6 +21,10 @@ export function useUser() {
     return () => unsubscribe();
   }, [auth]);
 
+
+    // console.log('bbbbb')
+
+
   const finishedLoading = !loading && !profileLoading;
   const profile = user ? userProfile : null;
 
