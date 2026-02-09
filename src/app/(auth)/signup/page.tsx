@@ -55,9 +55,9 @@ export default function SignupPage() {
     }
   };
   
-  if (userLoading || user) {
-    return null;
-  }
+  // if (userLoading || user) {
+  //   return null;
+  // }
 
   return (
     <Card className="w-full max-w-sm">

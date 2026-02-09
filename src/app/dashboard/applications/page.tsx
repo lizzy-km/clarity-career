@@ -11,7 +11,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { query, where } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 
 const statusStyles = {
     'Applied': 'secondary',
@@ -53,7 +53,10 @@ export default function ApplicationsPage() {
   const applicationsQuery = user ? query(
     collection(firestore, 'applications'),
     where('applicantId', '==', user.uid)
-  ) : null;
+  ) : query(
+    collection(firestore, 'applications'),
+    where('applicantId', '==', '')
+  );
   
   const { data: applications, loading } = useCollection<Application>(`applications`, applicationsQuery);
 
@@ -61,7 +64,7 @@ export default function ApplicationsPage() {
 
   const handleStatusChange = (applicationId: string, status: string) => {
     if (!user) return;
-    updateApplicationStatus(applicationId, status);
+    updateApplicationStatus(firestore,applicationId, status);
     toast({
         title: "Status Updated",
         description: `The application status has been changed to ${status}.`
