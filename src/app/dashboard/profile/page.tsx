@@ -1,16 +1,15 @@
 "use client";
 
-import { useAuth } from '@/hooks/use-auth';
+import { useUser } from '@/firebase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user } = useUser();
 
   if (!user) return null;
   

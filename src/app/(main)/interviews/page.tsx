@@ -1,8 +1,10 @@
-import { placeholderInterviews } from '@/lib/placeholder-data';
+'use client';
+import { useCollection } from '@/firebase';
 import type { InterviewExperience } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function InterviewCard({ interview }: { interview: InterviewExperience }) {
     const getBadgeVariant = (difficulty: 'Easy' | 'Average' | 'Difficult') => {
@@ -38,7 +40,35 @@ function InterviewCard({ interview }: { interview: InterviewExperience }) {
   );
 }
 
+function InterviewCardSkeleton() {
+    return (
+        <Card>
+            <CardHeader>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <Skeleton className="h-6 w-64 mb-2" />
+                        <Skeleton className="h-5 w-48" />
+                    </div>
+                    <Skeleton className="h-6 w-20" />
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div>
+                    <Skeleton className="h-5 w-32 mb-2" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full mt-1" />
+                </div>
+                <div>
+                    <Skeleton className="h-5 w-40 mb-2" />
+                    <Skeleton className="h-4 w-full" />
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
 export default function InterviewsPage() {
+  const { data: interviews, loading } = useCollection<InterviewExperience>('interviews');
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
@@ -50,7 +80,8 @@ export default function InterviewsPage() {
       </div>
 
       <div className="space-y-6">
-        {placeholderInterviews.map(interview => (
+        {loading && <> <InterviewCardSkeleton /> <InterviewCardSkeleton /> </>}
+        {interviews?.map(interview => (
           <InterviewCard key={interview.id} interview={interview} />
         ))}
       </div>

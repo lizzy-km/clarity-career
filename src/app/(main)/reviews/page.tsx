@@ -1,8 +1,10 @@
-import { placeholderReviews } from '@/lib/placeholder-data';
+'use client';
+import { useCollection } from '@/firebase';
 import type { CompanyReview } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Star } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -47,7 +49,39 @@ function ReviewCard({ review }: { review: CompanyReview }) {
   );
 }
 
+function ReviewCardSkeleton() {
+    return (
+        <Card>
+            <CardHeader>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <Skeleton className="h-6 w-40 mb-2" />
+                        <Skeleton className="h-5 w-64" />
+                    </div>
+                    <Skeleton className="h-5 w-28" />
+                </div>
+                <Skeleton className="h-4 w-48 mt-2" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div>
+                    <Skeleton className="h-5 w-16 mb-2" />
+                    <Skeleton className="h-4 w-full" />
+                </div>
+                <div>
+                    <Skeleton className="h-5 w-16 mb-2" />
+                    <Skeleton className="h-4 w-full" />
+                </div>
+                <div>
+                    <Skeleton className="h-5 w-32 mb-2" />
+                    <Skeleton className="h-4 w-full" />
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
 export default function ReviewsPage() {
+  const { data: reviews, loading } = useCollection<CompanyReview>('reviews');
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
@@ -59,7 +93,8 @@ export default function ReviewsPage() {
       </div>
 
       <div className="space-y-6">
-        {placeholderReviews.map(review => (
+        {loading && <> <ReviewCardSkeleton/> <ReviewCardSkeleton/> </>}
+        {reviews?.map(review => (
           <ReviewCard key={review.id} review={review} />
         ))}
       </div>

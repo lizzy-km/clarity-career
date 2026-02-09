@@ -1,4 +1,5 @@
-import { placeholderJobs } from '@/lib/placeholder-data';
+'use client';
+import { useCollection } from '@/firebase';
 import type { Job } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 import { MapPin, Briefcase, DollarSign, Bookmark } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function JobCard({ job }: { job: Job }) {
   return (
@@ -45,8 +47,35 @@ function JobCard({ job }: { job: Job }) {
   );
 }
 
+function JobCardSkeleton() {
+    return (
+        <Card>
+            <CardHeader className="flex flex-row items-start gap-4">
+                <Skeleton className="h-[50px] w-[50px] rounded-lg border" />
+                <div>
+                    <Skeleton className="h-6 w-48 mb-2" />
+                    <Skeleton className="h-5 w-32" />
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+            </CardContent>
+            <CardFooter className="flex justify-between">
+                <Skeleton className="h-4 w-24" />
+                <div className="flex gap-2">
+                    <Skeleton className="h-9 w-24" />
+                    <Skeleton className="h-9 w-24" />
+                </div>
+            </CardFooter>
+        </Card>
+    )
+}
+
 export default function JobsPage() {
-  const industries = [...new Set(placeholderJobs.map(job => job.industry))];
+  const { data: jobs, loading } = useCollection<Job>('jobs');
+  const industries = [...new Set(jobs?.map(job => job.industry) || [])];
 
   return (
     <div>
@@ -74,7 +103,8 @@ export default function JobsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {placeholderJobs.map(job => (
+        {loading && <> <JobCardSkeleton /> <JobCardSkeleton /> <JobCardSkeleton /> <JobCardSkeleton /> </>}
+        {jobs?.map(job => (
           <JobCard key={job.id} job={job} />
         ))}
       </div>

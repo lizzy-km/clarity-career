@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { User, Briefcase, Settings, LogOut } from 'lucide-react';
 
-import { useAuth } from '@/hooks/use-auth';
+import { useUser } from '@/firebase';
 import {
   Sidebar,
   SidebarContent,
@@ -18,13 +18,14 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth();
+  const { user, loading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -35,7 +36,17 @@ export default function DashboardLayout({
   }, [user, loading, router]);
 
   if (loading || !user) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return (
+        <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+                <Skeleton className="h-12 w-12 rounded-full" />
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                </div>
+            </div>
+        </div>
+    );
   }
   
   const navItems = [

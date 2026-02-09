@@ -27,10 +27,19 @@ export interface Education {
   endDate: string;
 }
 
+export interface Company {
+    id: string;
+    name: string;
+    logoUrl: string;
+    website?: string;
+    description?: string;
+}
+
 export interface Job {
   id: string;
   title: string;
   company: string;
+  companyId?: string;
   location: string;
   salaryMin: number;
   salaryMax: number;
@@ -43,7 +52,9 @@ export interface Job {
 export interface CompanyReview {
   id: string;
   company: string;
+  companyId?: string;
   author: string;
+  userId?: string;
   rating: number;
   title: string;
   pros: string;
@@ -64,8 +75,10 @@ export interface SalaryData {
 export interface InterviewExperience {
   id: string;
   company: string;
+  companyId?: string;
   jobTitle: string;
   author: string;
+  userId?: string;
   difficulty: 'Easy' | 'Average' | 'Difficult';
   questions: string;
   experience: string;

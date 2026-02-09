@@ -1,0 +1,142 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile information.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The user's unique ID." },
+        "email": { "type": "string", "format": "email", "description": "The user's email address." },
+        "displayName": { "type": "string", "description": "The user's display name." },
+        "photoURL": { "type": "string", "format": "uri", "description": "URL of the user's profile picture." }
+      },
+      "required": ["uid", "email"]
+    },
+    "Job": {
+      "title": "Job Listing",
+      "description": "A job posting.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "companyId": { "type": "string" },
+        "company": { "type": "string" },
+        "companyLogoUrl": { "type": "string", "format": "uri" },
+        "location": { "type": "string" },
+        "salaryMin": { "type": "number" },
+        "salaryMax": { "type": "number" },
+        "industry": { "type": "string" },
+        "description": { "type": "string" },
+        "postedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "companyId", "company", "location", "description", "postedAt"]
+    },
+    "Company": {
+        "title": "Company",
+        "description": "A company profile.",
+        "type": "object",
+        "properties": {
+            "name": { "type": "string" },
+            "logoUrl": { "type": "string", "format": "uri" },
+            "website": { "type": "string", "format": "uri" },
+            "description": { "type": "string" }
+        },
+        "required": ["name"]
+    },
+    "CompanyReview": {
+      "title": "Company Review",
+      "description": "A review of a company by a user.",
+      "type": "object",
+      "properties": {
+        "companyId": { "type": "string" },
+        "company": { "type": "string" },
+        "userId": { "type": "string" },
+        "author": { "type": "string" },
+        "rating": { "type": "number" },
+        "title": { "type": "string" },
+        "pros": { "type": "string" },
+        "cons": { "type": "string" },
+        "cultureInsight": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["companyId", "company", "userId", "author", "rating", "title", "pros", "cons", "createdAt"]
+    },
+    "SalaryData": {
+        "title": "Salary Data",
+        "description": "An anonymous salary submission.",
+        "type": "object",
+        "properties": {
+            "jobTitle": { "type": "string" },
+            "location": { "type": "string" },
+            "salary": { "type": "number" },
+            "yearsOfExperience": { "type": "number" },
+            "companyId": { "type": "string" },
+            "company": { "type": "string" },
+            "userId": { "type": "string" },
+            "submittedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["jobTitle", "location", "salary", "yearsOfExperience", "submittedAt"]
+    },
+    "InterviewExperience": {
+        "title": "Interview Experience",
+        "description": "A user's account of a job interview.",
+        "type": "object",
+        "properties": {
+            "companyId": { "type": "string" },
+            "company": { "type": "string" },
+            "jobTitle": { "type": "string" },
+            "userId": { "type": "string" },
+            "author": { "type": "string" },
+            "difficulty": { "type": "string", "enum": ["Easy", "Average", "Difficult"] },
+            "questions": { "type": "string" },
+            "experience": { "type": "string" },
+            "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["companyId", "company", "jobTitle", "userId", "difficulty", "experience", "createdAt"]
+    },
+    "Application": {
+        "title": "Job Application",
+        "description": "Tracks a user's application for a job.",
+        "type": "object",
+        "properties": {
+            "jobId": { "type": "string" },
+            "userId": { "type": "string" },
+            "status": { "type": "string", "enum": ["Saved", "Applied", "Interviewing", "Offered", "Rejected"] },
+            "appliedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["jobId", "userId", "status"]
+    }
+  },
+  "auth": {
+    "providers": ["google.com", "password"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/backend/entities/UserProfile" },
+      "description": "User profile data."
+    },
+    "/jobs/{jobId}": {
+        "schema": { "$ref": "#/backend/entities/Job" },
+        "description": "Collection of all job listings."
+    },
+    "/companies/{companyId}": {
+        "schema": { "$ref": "#/backend/entities/Company" },
+        "description": "Collection of all companies."
+    },
+    "/reviews/{reviewId}": {
+        "schema": { "$ref": "#/backend/entities/CompanyReview" },
+        "description": "Collection of all company reviews."
+    },
+    "/salaries/{salaryId}": {
+        "schema": { "$ref": "#/backend/entities/SalaryData" },
+        "description": "Collection of all salary data points."
+    },
+    "/interviews/{interviewId}": {
+        "schema": { "$ref": "#/backend/entities/InterviewExperience" },
+        "description": "Collection of all interview experiences."
+    },
+    "/users/{userId}/applications/{applicationId}": {
+        "schema": { "$ref": "#/backend/entities/Application" },
+        "description": "Sub-collection of applications for a specific user."
+    }
+  }
+}

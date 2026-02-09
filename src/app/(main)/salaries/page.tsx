@@ -1,11 +1,16 @@
-import { placeholderSalaries } from '@/lib/placeholder-data';
+'use client';
+import { useCollection } from '@/firebase';
+import type { SalaryData } from '@/lib/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function SalariesPage() {
+  const { data: salaries, loading } = useCollection<SalaryData>('salaries');
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
   }
@@ -27,7 +32,15 @@ export default function SalariesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {placeholderSalaries.map(salary => (
+              {loading && Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                    <TableCell><Skeleton className="h-5 w-40" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-12" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-5 w-24 ml-auto" /></TableCell>
+                </TableRow>
+              ))}
+              {salaries?.map(salary => (
                 <TableRow key={salary.id}>
                   <TableCell className="font-medium">{salary.jobTitle}</TableCell>
                   <TableCell>{salary.location}</TableCell>
