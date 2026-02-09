@@ -43,7 +43,8 @@
             "logoUrl": { "type": "string", "format": "uri" },
             "website": { "type": "string", "format": "uri" },
             "description": { "type": "string" },
-            "ownerId": { "type": "string", "description": "The UID of the user who owns this company profile."}
+            "ownerId": { "type": "string", "description": "The UID of the user who owns this company profile."},
+            "employeeSize": { "type": "string", "description": "The approximate number of employees." }
         },
         "required": ["name", "ownerId"]
     },
@@ -155,4 +156,3 @@
     }
   }
 }
-

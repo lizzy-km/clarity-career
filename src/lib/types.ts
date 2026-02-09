@@ -40,6 +40,7 @@ export interface Company {
     website?: string;
     description?: string;
     ownerId?: string;
+    employeeSize?: string;
 }
 
 export interface Job {

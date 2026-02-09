@@ -16,22 +16,22 @@ import { Globe } from 'lucide-react';
 
 function CompanyCard({ company }: { company: Company }) {
   return (
-    <Card>
+    <Card className="h-full transition-shadow hover:shadow-lg">
       <CardHeader className="flex flex-row items-start gap-4">
         <Image src={company.logoUrl} alt={`${company.name} logo`} width={50} height={50} className="rounded-lg border" data-ai-hint="company logo" />
         <div>
           <CardTitle>{company.name}</CardTitle>
           {company.website && (
-            <Link href={company.website} target="_blank" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+            <p className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Globe className="h-3 w-3" />
-                {company.website}
-            </Link>
+                {company.website.replace(/https?:\/\//, '').split('/')[0]}
+            </p>
           )}
         </div>
       </CardHeader>
       {company.description && (
         <CardContent>
-            <CardDescription>{company.description}</CardDescription>
+            <CardDescription className="line-clamp-3">{company.description}</CardDescription>
         </CardContent>
       )}
     </Card>
@@ -98,7 +98,9 @@ export default function CompaniesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading && Array.from({ length: 6 }).map((_, i) => <CompanyCardSkeleton key={i} />)}
         {companies?.map(company => (
-          <CompanyCard key={company.id} company={company} />
+           <Link href={`/companies/${company.id}`} key={company.id}>
+              <CompanyCard company={company} />
+           </Link>
         ))}
       </div>
     </div>

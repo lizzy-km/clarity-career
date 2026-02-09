@@ -8,12 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const companyFormSchema = z.object({
   name: z.string().min(2, "Company name must be at least 2 characters."),
   logoUrl: z.string().url("Please enter a valid URL for the logo."),
   website: z.string().url("Please enter a valid URL for the website.").optional().or(z.literal('')),
   description: z.string().min(10, "Description must be at least 10 characters.").optional().or(z.literal('')),
+  employeeSize: z.string().optional(),
 });
 
 export type CompanyFormData = z.infer<typeof companyFormSchema>;
@@ -30,6 +32,7 @@ export function CompanyForm({ onSubmit }: CompanyFormProps) {
       logoUrl: "",
       website: "",
       description: "",
+      employeeSize: "",
     }
   });
 
@@ -71,6 +74,30 @@ export function CompanyForm({ onSubmit }: CompanyFormProps) {
                 <FormControl>
                     <Input placeholder="https://example.com" {...field} />
                 </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+        />
+        <FormField
+            control={form.control}
+            name="employeeSize"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Employee Size</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a size range" />
+                        </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        <SelectItem value="1-50">1-50 employees</SelectItem>
+                        <SelectItem value="51-200">51-200 employees</SelectItem>
+                        <SelectItem value="201-500">201-500 employees</SelectItem>
+                        <SelectItem value="501-1000">501-1000 employees</SelectItem>
+                        <SelectItem value="1001+">1001+ employees</SelectItem>
+                    </SelectContent>
+                </Select>
                 <FormMessage />
                 </FormItem>
             )}
