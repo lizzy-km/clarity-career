@@ -27,15 +27,20 @@ export default function JobApplicationsPage() {
     const jobId = params.jobId as string;
     const { toast } = useToast();
     const firestore = useFirestore();
+
     
+    // console.log(user?.uid ==='ymJOYRavymMspzgGEayXBm8j8fz2')
     const { data: job, loading: jobLoading } = useDoc<Job>('jobs', jobId);
     
-    const applicationsQuery = useMemo(() => (jobId ? query(
+    const applicationsQuery = useMemo(() => (jobId && user ? query(
         collection(firestore, 'applications'),
         where('jobId', '==', jobId)
     ) : null), [firestore, jobId]);
 
-    const { data: applications, loading: appsLoading } = useCollection<Application>('applications', applicationsQuery);
+    const { data: applications, loading: appsLoading } = applicationsQuery? useCollection<Application>('applications', applicationsQuery):{
+        data: [],
+        loading: false
+    }
 
     const handleStatusChange = (applicationId: string, status: string) => {
         if (!user) return;
@@ -52,6 +57,7 @@ export default function JobApplicationsPage() {
 
     const loading = userLoading || appsLoading || jobLoading;
 
+    if(jobId)
     return (
         <div>
             <h1 className="text-3xl font-bold font-headline">Applications for {job?.title || '...'}</h1>

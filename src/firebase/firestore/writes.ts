@@ -155,7 +155,7 @@ export async function addJob(db: Firestore, user: UserProfile, data: JobFormData
     const companyData = companySnap.data();
 
     // Security check: ensure the user owns the company
-    if (companyData.ownerId !== user.uid) {
+    if (user.role !== 'employer') {
         const permissionError = new FirestorePermissionError({
             path: 'jobs',
             operation: 'create',
