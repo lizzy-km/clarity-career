@@ -52,7 +52,7 @@ export default function DashboardLayout({
   const navItems = [
     { href: '/dashboard/applications', label: 'Applications', icon: <Briefcase /> },
     { href: '/dashboard/profile', label: 'Profile', icon: <User /> },
-    { href: '#', label: 'Settings', icon: <Settings /> },
+    { href: '/dashboard/settings', label: 'Settings', icon: <Settings /> },
   ];
 
   return (
