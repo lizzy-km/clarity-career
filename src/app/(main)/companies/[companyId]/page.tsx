@@ -7,6 +7,7 @@ import { collection, query, where } from 'firebase/firestore';
 import type { Company, Job, CompanyReview, SalaryData, UserProfile } from '@/lib/types';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -92,19 +93,19 @@ export default function CompanyDetailPage() {
 
   const { data: company, loading: companyLoading } = useDoc<Company>('companies', companyId);
 
-  const jobsQuery =  query(collection(firestore, 'jobs'), where('companyId', '==', companyId??'empty'));
-//   const { data: jobs, loading: jobsLoading } = useCollection<Job>('jobs', jobsQuery);
+  const jobsQuery = useMemo(() => (companyId ? query(collection(firestore, 'jobs'), where('companyId', '==', companyId)) : null), [firestore, companyId]);
+  const { data: jobs, loading: jobsLoading } = useCollection<Job>('jobs', jobsQuery);
 
-  const reviewsQuery =  query(collection(firestore, 'reviews'), where('companyId', '==', companyId??'empty')) 
-//   const { data: reviews, loading: reviewsLoading } = useCollection<CompanyReview>('reviews', reviewsQuery);
+  const reviewsQuery = useMemo(() => (companyId ? query(collection(firestore, 'reviews'), where('companyId', '==', companyId)) : null), [firestore, companyId]);
+  const { data: reviews, loading: reviewsLoading } = useCollection<CompanyReview>('reviews', reviewsQuery);
 
-  const salariesQuery =  query(collection(firestore, 'salaries'), where('companyId', '==', companyId??'empty')) 
-//   const { data: salaries, loading: salariesLoading } = useCollection<SalaryData>('salaries', salariesQuery);
+  const salariesQuery = useMemo(() => (companyId ? query(collection(firestore, 'salaries'), where('companyId', '==', companyId)) : null), [firestore, companyId]);
+  const { data: salaries, loading: salariesLoading } = useCollection<SalaryData>('salaries', salariesQuery);
 
-//   const loading = companyLoading || jobsLoading || reviewsLoading || salariesLoading;
+  const loading = companyLoading || jobsLoading || reviewsLoading || salariesLoading;
 
 
-const loading = false
+// const loading = false
 
   console.log('bbbbb')
   const handleSaveToggle = (jobId: string) => {
@@ -168,7 +169,7 @@ const loading = false
         {company.description && <p className="text-foreground/80">{company.description}</p>}
       </header>
 
-      {/* <Tabs defaultValue="jobs">
+      <Tabs defaultValue="jobs">
           <TabsList className="mb-4">
               <TabsTrigger value="jobs">Jobs ({jobs?.length || 0})</TabsTrigger>
               <TabsTrigger value="reviews">Reviews ({reviews?.length || 0})</TabsTrigger>
@@ -222,7 +223,7 @@ const loading = false
                   </Table>
               </Card>
           </TabsContent>
-      </Tabs> */}
+      </Tabs>
 
     </div>
   );

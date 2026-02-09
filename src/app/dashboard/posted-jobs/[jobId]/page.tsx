@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { updateApplicationStatus } from '@/firebase/firestore/writes';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 const statusStyles = {
     'Applied': 'secondary',
@@ -30,15 +30,16 @@ export default function JobApplicationsPage() {
     
     const { data: job, loading: jobLoading } = useDoc<Job>('jobs', jobId);
     
-    const applicationsQuery = jobId ? query(
+    const applicationsQuery = useMemo(() => (jobId ? query(
         collection(firestore, 'applications'),
         where('jobId', '==', jobId)
-    ) : null;
+    ) : null), [firestore, jobId]);
+
     const { data: applications, loading: appsLoading } = useCollection<Application>('applications', applicationsQuery);
 
     const handleStatusChange = (applicationId: string, status: string) => {
         if (!user) return;
-        updateApplicationStatus(applicationId, status);
+        updateApplicationStatus(firestore, applicationId, status);
         toast({ title: "Status Updated", description: `The application status has been changed to ${status}.`});
     }
 
