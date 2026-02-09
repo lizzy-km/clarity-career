@@ -1,6 +1,8 @@
+
 'use client';
+import { useState } from 'react';
 import { useCollection, useFirestore, useUser } from '@/firebase';
-import type { Job } from '@/lib/types';
+import type { Job, UserProfile } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,9 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Image from 'next/image';
 import { MapPin, Briefcase, DollarSign, Bookmark } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { saveApplication } from '@/firebase/firestore/writes';
+import { saveApplication, addJob } from '@/firebase/firestore/writes';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
+import { JobForm, JobFormData } from '@/components/forms/job-form';
 
 function JobCard({ job, onSave }: { job: Job, onSave: (job: Job) => void }) {
   return (
@@ -83,6 +87,7 @@ export default function JobsPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const router = useRouter();
+  const [isFormOpen, setFormOpen] = useState(false);
 
   const handleSaveJob = (job: Job) => {
     if (!user) {
@@ -101,10 +106,36 @@ export default function JobsPage() {
     });
   };
 
+  const handleJobSubmit = (data: JobFormData) => {
+    if (!user) return;
+    addJob(firestore, user as UserProfile, data);
+    toast({
+      title: "Success!",
+      description: "Your job has been posted.",
+    });
+    setFormOpen(false);
+  }
+
   return (
     <div>
-      <h1 className="text-4xl font-bold font-headline mb-2">Find Your Next Opportunity</h1>
-      <p className="text-lg text-muted-foreground mb-8">Search through thousands of open positions.</p>
+      <div className="flex justify-between items-center">
+        <div>
+            <h1 className="text-4xl font-bold font-headline mb-2">Find Your Next Opportunity</h1>
+            <p className="text-lg text-muted-foreground mb-8">Search through thousands of open positions.</p>
+        </div>
+        <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
+            <DialogTrigger asChild>
+                <Button disabled={!user}>Post a Job</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[625px]">
+                <DialogHeader>
+                    <DialogTitle>Post a New Job</DialogTitle>
+                    <DialogDescription>Fill out the form below to post a new job opening.</DialogDescription>
+                </DialogHeader>
+                <JobForm onSubmit={handleJobSubmit} />
+            </DialogContent>
+        </Dialog>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 p-4 border rounded-lg bg-card">
         <Input placeholder="Job title, keywords..." className="md:col-span-2 h-12" />

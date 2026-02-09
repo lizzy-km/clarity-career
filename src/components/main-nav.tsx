@@ -7,6 +7,7 @@ import { Button } from './ui/button';
 export function MainNav({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
   const navLinks = [
     { href: '/jobs', label: 'Jobs' },
+    { href: '/companies', label: 'Companies' },
     { href: '/reviews', label: 'Company Reviews' },
     { href: '/salaries', label: 'Salaries' },
     { href: '/interviews', label: 'Interviews' },
