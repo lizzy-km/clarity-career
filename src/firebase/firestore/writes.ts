@@ -1,3 +1,4 @@
+
 import { collection, addDoc, serverTimestamp, doc, setDoc, updateDoc, Firestore, getDoc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -9,10 +10,17 @@ import type { CompanyFormData } from '@/components/forms/company-form';
 import type { JobFormData } from '@/components/forms/job-form';
 
 
-export function addReview(db: Firestore, user: UserProfile, data: ReviewFormData) {
+export async function addReview(db: Firestore, user: UserProfile, data: ReviewFormData) {
+    const companySnap = await getDoc(doc(db, 'companies', data.companyId));
+    if (!companySnap.exists()) {
+        throw new Error("Company not found");
+    }
+    const companyData = companySnap.data();
+
     const reviewRef = collection(db, 'reviews');
     addDoc(reviewRef, {
         ...data,
+        company: companyData.name,
         rating: Number(data.rating),
         userId: user.uid,
         author: user.displayName,
@@ -27,10 +35,17 @@ export function addReview(db: Firestore, user: UserProfile, data: ReviewFormData
     });
 }
 
-export function addInterviewExperience(db: Firestore, user: UserProfile, data: InterviewFormData) {
+export async function addInterviewExperience(db: Firestore, user: UserProfile, data: InterviewFormData) {
+    const companySnap = await getDoc(doc(db, 'companies', data.companyId));
+    if (!companySnap.exists()) {
+        throw new Error("Company not found");
+    }
+    const companyData = companySnap.data();
+    
     const interviewRef = collection(db, 'interviews');
     addDoc(interviewRef, {
         ...data,
+        company: companyData.name,
         userId: user.uid,
         author: user.displayName,
         createdAt: serverTimestamp(),

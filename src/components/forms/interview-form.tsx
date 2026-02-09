@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from 'react-hook-form';
@@ -9,10 +10,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { useCollection } from '@/firebase';
+import type { Company } from '@/lib/types';
+import { Skeleton } from '../ui/skeleton';
 
 
 const interviewFormSchema = z.object({
-  company: z.string().min(1, "Company name is required"),
+  companyId: z.string().min(1, "Company is required"),
   jobTitle: z.string().min(2, "Job title is required"),
   difficulty: z.enum(['Easy', 'Average', 'Difficult']),
   questions: z.string().min(10, "Please provide some sample questions."),
@@ -26,10 +30,11 @@ interface InterviewFormProps {
 }
 
 export function InterviewForm({ onSubmit }: InterviewFormProps) {
+  const { data: companies, loading: loadingCompanies } = useCollection<Company>('companies');
   const form = useForm<InterviewFormData>({
     resolver: zodResolver(interviewFormSchema),
     defaultValues: {
-        company: "",
+        companyId: "",
         jobTitle: "",
         difficulty: "Average",
         questions: "",
@@ -43,14 +48,22 @@ export function InterviewForm({ onSubmit }: InterviewFormProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
                 control={form.control}
-                name="company"
+                name="companyId"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Company Name</FormLabel>
-                    <FormControl>
-                        <Input placeholder="e.g. DataStream" {...field} />
-                    </FormControl>
-                    <FormMessage />
+                        <FormLabel>Company</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            {loadingCompanies ? <Skeleton className="h-10 w-full" /> : 
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a company" />
+                            </SelectTrigger>}
+                            </FormControl>
+                            <SelectContent>
+                                {companies?.map(company => <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
                     </FormItem>
                 )}
             />

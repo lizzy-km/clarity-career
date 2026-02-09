@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from 'react-hook-form';
@@ -8,9 +9,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useCollection } from '@/firebase';
+import type { Company } from '@/lib/types';
+import { Skeleton } from '../ui/skeleton';
 
 const reviewFormSchema = z.object({
-  company: z.string().min(1, "Company name is required"),
+  companyId: z.string().min(1, "Company is required."),
   rating: z.coerce.number().min(1).max(5),
   title: z.string().min(5, "Title must be at least 5 characters"),
   pros: z.string().min(10, "Pros must be at least 10 characters"),
@@ -25,10 +29,11 @@ interface ReviewFormProps {
 }
 
 export function ReviewForm({ onSubmit }: ReviewFormProps) {
+  const { data: companies, loading: loadingCompanies } = useCollection<Company>('companies');
   const form = useForm<ReviewFormData>({
     resolver: zodResolver(reviewFormSchema),
     defaultValues: {
-        company: "",
+        companyId: "",
         rating: 3,
         title: "",
         pros: "",
@@ -42,17 +47,25 @@ export function ReviewForm({ onSubmit }: ReviewFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
-            control={form.control}
-            name="company"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Company Name</FormLabel>
-                <FormControl>
-                    <Input placeholder="e.g. Innovate Inc." {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
+              control={form.control}
+              name="companyId"
+              render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Company</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                          {loadingCompanies ? <Skeleton className="h-10 w-full" /> : 
+                          <SelectTrigger>
+                              <SelectValue placeholder="Select a company" />
+                          </SelectTrigger>}
+                          </FormControl>
+                          <SelectContent>
+                              {companies?.map(company => <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>)}
+                          </SelectContent>
+                      </Select>
+                      <FormMessage />
+                  </FormItem>
+              )}
             />
             <FormField
             control={form.control}
