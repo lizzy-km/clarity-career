@@ -20,8 +20,9 @@ export function useCollection<T>(path: string, q?: Query) {
   const [error, setError] = useState<FirestoreError | null>(null);
   const firestore = useFirestore();
 
+
   const memoizedQuery = useMemo(() => {
-    if (!firestore) return null;
+    if (!firestore && path.length <1) return null;
     const ref = collection(firestore, path);
     return q || query(ref);
   }, [firestore, path, q]);
