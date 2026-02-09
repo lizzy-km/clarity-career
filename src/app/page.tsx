@@ -64,7 +64,7 @@ export default function HomePage() {
       <main className="flex-grow">
         <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center text-center text-white">
           <Image
-            src="https://picsum.photos/seed/hero-bg/1920/1080"
+            src="https://plus.unsplash.com/premium_photo-1764691233461-4114a790616f?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Modern office background"
             fill
             className="object-cover -z-10"
@@ -105,7 +105,7 @@ export default function HomePage() {
                 We provide the tools and information you need to make informed career decisions.
               </p>
             </div>
-            <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4 px-4 ">
               {features.map((feature) => (
                 <Card key={feature.title} className="text-center shadow-md hover:shadow-xl transition-shadow duration-300">
                   <CardHeader>
