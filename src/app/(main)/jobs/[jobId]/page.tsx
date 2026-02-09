@@ -2,7 +2,7 @@
 'use client';
 import { useParams, useRouter } from 'next/navigation';
 import { useDoc, useUser, useFirestore } from '@/firebase';
-import type { Job } from '@/lib/types';
+import type { Job, Company } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { MapPin, Briefcase, DollarSign, Heart } from 'lucide-react';
@@ -19,7 +19,8 @@ export default function JobDetailPage() {
     const router = useRouter();
     const jobId = params.jobId as string;
 
-    const { data: job, loading } = useDoc<Job>('jobs', jobId);
+    const { data: job, loading: jobLoading } = useDoc<Job>('jobs', jobId);
+    const { data: company, loading: companyLoading } = useDoc<Company>('companies', job?.companyId);
     const { user } = useUser();
     const firestore = useFirestore();
     const { toast } = useToast();
@@ -52,6 +53,8 @@ export default function JobDetailPage() {
         toast({ title: "Applied!", description: `Your application for ${job.title} has been submitted.` });
         setApplyFormOpen(false);
     }
+
+    const loading = jobLoading || companyLoading;
 
     if (loading) {
         return (
@@ -108,7 +111,7 @@ export default function JobDetailPage() {
                             <CardTitle>Apply for this position</CardTitle>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-2">
-                             {user?.role === 'employee' && (
+                             {user && company && user.uid !== company.ownerId && (
                                 <>
                                 <Button size="lg" onClick={handleOpenApplyDialog}>Apply Now</Button>
                                 <Button size="lg" variant="outline" onClick={handleSaveToggle}>
@@ -117,7 +120,9 @@ export default function JobDetailPage() {
                                 </Button>
                                 </>
                             )}
-                            {user?.role === 'employer' && <p className="text-sm text-muted-foreground">Log in as an employee to apply.</p>}
+                            {user && company && user.uid === company.ownerId && (
+                                <p className="text-sm text-muted-foreground">You cannot apply to a job you posted.</p>
+                            )}
                             {!user && <p className="text-sm text-muted-foreground">Log in to apply for this job.</p>}
                         </CardContent>
                     </Card>

@@ -48,7 +48,7 @@ function JobCard({ job, user, onSave, isSaved }: { job: Job, user: UserProfile |
             <Button variant="outline" size="sm" asChild>
                 <Link href={`/jobs/${job.id}`}>View Details</Link>
             </Button>
-            {user && user.role === 'employee' && (
+            {user && (
                 <Button variant="ghost" size="icon" onClick={() => onSave(job.id)}>
                     <Heart className={isSaved ? "fill-red-500 text-red-500" : "text-muted-foreground"} />
                 </Button>
