@@ -47,7 +47,7 @@ function ApplicationRowSkeleton() {
 
 export default function ApplicationsPage() {
   const { user } = useUser();
-  const { data: applications, loading } = useCollection<Application>(user ? `users/${user.uid}/applications` : '');
+  const { data: applications, loading } = useCollection<Application>( `users/${user?.uid}/applications`);
   const firestore = useFirestore();
   const { toast } = useToast();
 

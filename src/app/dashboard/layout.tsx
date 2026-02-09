@@ -29,6 +29,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
 
+
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
@@ -65,7 +66,7 @@ export default function DashboardLayout({
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
-                <Link href={item.href} passHref legacyBehavior>
+                <Link href={item.href} passHref >
                   <SidebarMenuButton isActive={pathname === item.href}>
                     {item.icon}
                     <span>{item.label}</span>
