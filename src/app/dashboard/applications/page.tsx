@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { collection, query, where } from 'firebase/firestore';
+import { useMemo } from 'react';
 
 const statusStyles = {
     'Applied': 'secondary',
@@ -50,10 +51,13 @@ export default function ApplicationsPage() {
   const { user } = useUser();
   const firestore = useFirestore();
   
-  const applicationsQuery = query(
-    collection(firestore, 'applications'),
-    where('applicantId', '==', user? user.uid:'')
-  ) 
+  const applicationsQuery = useMemo(() => {
+    if (!user?.uid) return null;
+    return query(
+      collection(firestore, 'applications'),
+      where('applicantId', '==', user.uid)
+    );
+  }, [firestore, user?.uid]);
   
   const { data: applications, loading } = useCollection<Application>(`applications`, applicationsQuery);
 

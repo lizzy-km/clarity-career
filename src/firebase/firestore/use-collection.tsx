@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect, useMemo } from 'react';
 import {
@@ -14,7 +15,7 @@ import { useFirestore } from '@/firebase';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
-export function useCollection<T>(path: string, q?: Query) {
+export function useCollection<T>(path: string, q?: Query | null) {
   const [data, setData] = useState<T[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<FirestoreError | null>(null);
@@ -22,13 +23,20 @@ export function useCollection<T>(path: string, q?: Query) {
 
 
   const memoizedQuery = useMemo(() => {
+    if (q === null) return null;
     if (!firestore && path.length <1) return null;
     const ref = collection(firestore, path);
     return q || query(ref);
   }, [firestore, path, q]);
 
   useEffect(() => {
-    if (!memoizedQuery) return;
+    if (!memoizedQuery) {
+        if(q === null) {
+            setData([]);
+            setLoading(false);
+        }
+        return;
+    };
 
     const unsubscribe = onSnapshot(
       memoizedQuery,
@@ -58,7 +66,7 @@ export function useCollection<T>(path: string, q?: Query) {
     );
 
     return () => unsubscribe();
-  }, [memoizedQuery, path]);
+  }, [memoizedQuery, path, q]);
 
   return { data, loading, error };
 }
