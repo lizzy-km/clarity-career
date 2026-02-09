@@ -1,10 +1,16 @@
 'use client';
-import { useCollection } from '@/firebase';
-import type { CompanyReview } from '@/lib/types';
+import { useState } from 'react';
+import { useCollection, useUser } from '@/firebase';
+import type { CompanyReview, UserProfile } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Star } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ReviewForm, ReviewFormData } from '@/components/forms/review-form';
+import { useFirestore } from '@/firebase';
+import { addReview } from '@/firebase/firestore/writes';
+import { useToast } from '@/hooks/use-toast';
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -29,7 +35,7 @@ function ReviewCard({ review }: { review: CompanyReview }) {
             </div>
             <StarRating rating={review.rating} />
         </div>
-        <p className="text-xs text-muted-foreground pt-2">By {review.author} on {new Intl.DateTimeFormat('en-US').format(review.createdAt)}</p>
+        <p className="text-xs text-muted-foreground pt-2">By {review.author} on {new Intl.DateTimeFormat('en-US').format(new Date(review.createdAt as any))}</p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
@@ -82,6 +88,21 @@ function ReviewCardSkeleton() {
 
 export default function ReviewsPage() {
   const { data: reviews, loading } = useCollection<CompanyReview>('reviews');
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
+  const [isFormOpen, setFormOpen] = useState(false);
+
+  const handleReviewSubmit = (data: ReviewFormData) => {
+    if(!user) return;
+    addReview(firestore, user as UserProfile, data);
+    toast({
+        title: "Success!",
+        description: "Your review has been submitted.",
+    });
+    setFormOpen(false);
+  }
+
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
@@ -89,7 +110,18 @@ export default function ReviewsPage() {
           <h1 className="text-4xl font-bold font-headline mb-2">Company Reviews</h1>
           <p className="text-lg text-muted-foreground">Get the real story from people on the inside.</p>
         </div>
-        <Button>Write a Review</Button>
+        <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
+            <DialogTrigger asChild>
+                <Button disabled={!user}>Write a Review</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[625px]">
+                <DialogHeader>
+                    <DialogTitle>Write a Review</DialogTitle>
+                    <DialogDescription>Share your experience to help others.</DialogDescription>
+                </DialogHeader>
+                <ReviewForm onSubmit={handleReviewSubmit} />
+            </DialogContent>
+        </Dialog>
       </div>
 
       <div className="space-y-6">

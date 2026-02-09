@@ -70,6 +70,7 @@ export interface SalaryData {
   salary: number;
   yearsOfExperience: number;
   submittedAt: Date;
+  userId?: string;
 }
 
 export interface InterviewExperience {
@@ -91,4 +92,8 @@ export interface Application {
   userId: string;
   status: 'Saved' | 'Applied' | 'Interviewing' | 'Offered' | 'Rejected';
   appliedAt: Date | null;
+  // Denormalized job data
+  jobTitle: string;
+  company: string;
+  companyLogoUrl: string;
 }

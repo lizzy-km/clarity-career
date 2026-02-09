@@ -1,3 +1,6 @@
+// This file is now deprecated as we are using live data from Firebase.
+// It is kept for reference but can be deleted.
+
 import type { Job, CompanyReview, SalaryData, InterviewExperience } from './types';
 
 export const placeholderJobs: Job[] = [

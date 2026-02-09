@@ -1,25 +1,15 @@
-import { placeholderJobs } from '@/lib/placeholder-data';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+'use client';
+import { useCollection, useUser, useFirestore } from '@/firebase';
+import type { Application } from '@/lib/types';
+import { updateApplicationStatus } from '@/firebase/firestore/writes';
+import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import Link from 'next/link';
-
-type TrackedApplication = {
-  id: string;
-  jobTitle: string;
-  company: string;
-  companyLogoUrl: string;
-  status: 'Saved' | 'Applied' | 'Interviewing' | 'Offered' | 'Rejected';
-  date: string;
-};
-
-const trackedApplications: TrackedApplication[] = [
-  { ...placeholderJobs[0], status: 'Interviewing', date: '2024-07-22' },
-  { ...placeholderJobs[2], status: 'Applied', date: '2024-07-20' },
-  { ...placeholderJobs[1], status: 'Saved', date: '2024-07-19' },
-];
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 const statusStyles = {
     'Saved': 'default',
@@ -29,7 +19,47 @@ const statusStyles = {
     'Rejected': 'destructive',
 } as const;
 
+
+function ApplicationRowSkeleton() {
+    return (
+        <TableRow>
+            <TableCell>
+                <div className="flex items-center gap-4">
+                    <Skeleton className="h-10 w-10 rounded-md border" />
+                    <div>
+                        <Skeleton className="h-5 w-40 mb-1" />
+                        <Skeleton className="h-4 w-32" />
+                    </div>
+                </div>
+            </TableCell>
+            <TableCell>
+                <Skeleton className="h-9 w-[150px]" />
+            </TableCell>
+            <TableCell>
+                <Skeleton className="h-5 w-24" />
+            </TableCell>
+            <TableCell className="text-right">
+                <Skeleton className="h-5 w-16 ml-auto" />
+            </TableCell>
+        </TableRow>
+    );
+}
+
 export default function ApplicationsPage() {
+  const { user } = useUser();
+  const { data: applications, loading } = useCollection<Application>(user ? `users/${user.uid}/applications` : '');
+  const firestore = useFirestore();
+  const { toast } = useToast();
+
+  const handleStatusChange = (applicationId: string, status: string) => {
+    if (!user) return;
+    updateApplicationStatus(firestore, user.uid, applicationId, status);
+    toast({
+        title: "Status Updated",
+        description: `The application status has been changed to ${status}.`
+    });
+  }
+
   return (
     <div className="space-y-8">
        <div>
@@ -49,7 +79,8 @@ export default function ApplicationsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {trackedApplications.map((app) => (
+              {loading && Array.from({length: 3}).map((_, i) => <ApplicationRowSkeleton key={i} />)}
+              {applications?.map((app) => (
                 <TableRow key={app.id}>
                   <TableCell>
                     <div className="flex items-center gap-4">
@@ -61,7 +92,7 @@ export default function ApplicationsPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                     <Select defaultValue={app.status}>
+                     <Select defaultValue={app.status} onValueChange={(value) => handleStatusChange(app.id, value)}>
                         <SelectTrigger className="w-[150px]">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
@@ -74,9 +105,9 @@ export default function ApplicationsPage() {
                         </SelectContent>
                     </Select>
                   </TableCell>
-                  <TableCell>{app.date}</TableCell>
+                  <TableCell>{app.appliedAt ? new Intl.DateTimeFormat('en-US').format(new Date(app.appliedAt as any)) : '-'}</TableCell>
                   <TableCell className="text-right">
-                    <Link href="#" className="text-primary hover:underline text-sm font-medium">View Job</Link>
+                    <Link href={`/jobs/${app.jobId}`} className="text-primary hover:underline text-sm font-medium">View Job</Link>
                   </TableCell>
                 </TableRow>
               ))}

@@ -101,9 +101,12 @@
             "jobId": { "type": "string" },
             "userId": { "type": "string" },
             "status": { "type": "string", "enum": ["Saved", "Applied", "Interviewing", "Offered", "Rejected"] },
-            "appliedAt": { "type": "string", "format": "date-time" }
+            "appliedAt": { "type": "string", "format": "date-time" },
+            "jobTitle": { "type": "string" },
+            "company": { "type": "string" },
+            "companyLogoUrl": { "type": "string", "format": "uri" }
         },
-        "required": ["jobId", "userId", "status"]
+        "required": ["jobId", "userId", "status", "jobTitle", "company"]
     }
   },
   "auth": {
