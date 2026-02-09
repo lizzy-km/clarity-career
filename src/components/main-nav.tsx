@@ -14,7 +14,7 @@ export function MainNav({ className, ...props }: React.HTMLAttributes<HTMLElemen
   ];
 
   return (
-    <header className={cn("sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", className)} {...props}>
+    <header className={cn(" px-4 sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", className)} {...props}>
       <div className="container flex h-16 items-center">
         <Logo />
         <nav className="hidden md:flex items-center space-x-4 lg:space-x-6 mx-6">
@@ -28,7 +28,7 @@ export function MainNav({ className, ...props }: React.HTMLAttributes<HTMLElemen
             </Link>
           ))}
         </nav>
-        <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className=" px-4 flex flex-1 items-center justify-end space-x-4">
           <UserNav />
         </div>
       </div>

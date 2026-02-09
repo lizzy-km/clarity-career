@@ -61,7 +61,7 @@ export default function ApplicationsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-4">
        <div>
         <h1 className="text-3xl font-bold font-headline">My Applications</h1>
         <p className="text-muted-foreground">Keep track of your job applications all in one place.</p>

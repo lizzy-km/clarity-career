@@ -118,7 +118,7 @@ export default function JobsPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center  ">
         <div>
             <h1 className="text-4xl font-bold font-headline mb-2">Find Your Next Opportunity</h1>
             <p className="text-lg text-muted-foreground mb-8">Search through thousands of open positions.</p>

@@ -54,7 +54,7 @@ export default function SalariesPage() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'MMK', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
   }
 
   return (
@@ -158,7 +158,7 @@ export default function SalariesPage() {
                         name="salary"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Annual Salary (USD)</FormLabel>
+                                <FormLabel>Montaly Salary (MMK)</FormLabel>
                                 <FormControl>
                                     <Input type="number" placeholder="e.g., 120000" {...field} />
                                 </FormControl>

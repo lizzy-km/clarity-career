@@ -38,7 +38,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="fixed top-0 left-0 right-0 z-50 transition-all bg-transparent">
-        <div className="container mx-auto flex h-20 items-center justify-between">
+        <div className=" px-4 container mx-auto flex h-20 items-center justify-between">
           <Logo className="text-white drop-shadow-md" />
           <UserNav />
         </div>
@@ -55,7 +55,7 @@ export default function HomePage() {
             data-ai-hint="modern office"
           />
           <div className="absolute inset-0 bg-primary/70 -z-10" />
-          <div className="container px-4">
+          <div className="container px-4 flex flex-col items-center justify-center  ">
             <h1 className="text-4xl md:text-6xl font-bold font-headline drop-shadow-lg animate-fade-in-down">
               Find Your Career Clarity
             </h1>
@@ -78,7 +78,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="features" className="py-16 md:py-24 bg-background">
+        <section id="features" className=" flex items-center justify-center  py-16 md:py-24 bg-background">
           <div className="container">
             <div className="text-center max-w-2xl mx-auto">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Why ClarityCareer?</h2>
@@ -107,7 +107,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-24 bg-secondary">
+        <section className="py-16 md:py-24 bg-secondary flex items-center justify-center ">
           <div className="container text-center">
              <h2 className="text-3xl md:text-4xl font-bold font-headline">Ready to Take Control?</h2>
              <p className="mt-4 text-muted-foreground text-lg max-w-xl mx-auto">Join thousands of professionals who use ClarityCareer to navigate their career path with confidence.</p>
@@ -118,7 +118,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="bg-primary text-primary-foreground">
+      <footer className="bg-primary px-4 text-primary-foreground">
         <div className="container py-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm">&copy; {new Date().getFullYear()} ClarityCareer. All rights reserved.</p>
           <div className="flex gap-4 mt-4 md:mt-0">
