@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useUser, useAuth, useFirestore } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase';
 import { updateUserProfile } from '@/firebase/firestore/writes';
 import { updateProfile as updateAuthProfile } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
@@ -25,13 +25,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 const profileFormSchema = z.object({
   displayName: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  phone: z.string().optional(),
+  portfolioUrl: z.string().url("Please enter a valid URL.").or(z.literal('')).optional(),
 });
 
 export type ProfileFormData = z.infer<typeof profileFormSchema>;
 
 export default function ProfilePage() {
   const { user, rawUser, loading } = useUser();
-  const auth = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
   
@@ -44,6 +45,8 @@ export default function ProfilePage() {
     resolver: zodResolver(profileFormSchema),
     values: {
         displayName: user?.displayName || '',
+        phone: user?.phone || '',
+        portfolioUrl: user?.portfolioUrl || '',
     }
   });
 
@@ -56,8 +59,10 @@ export default function ProfilePage() {
 
   const handleProfileSave = async (data: ProfileFormData) => {
     try {
-        await updateAuthProfile(rawUser, { displayName: data.displayName });
-        updateUserProfile(firestore, user.uid, { displayName: data.displayName });
+        if (data.displayName !== user.displayName) {
+          await updateAuthProfile(rawUser, { displayName: data.displayName });
+        }
+        updateUserProfile(firestore, user.uid, data);
         toast({ title: "Success", description: "Your profile has been updated." });
     } catch (error: any) {
         toast({ variant: "destructive", title: "Error", description: error.message });
@@ -132,25 +137,13 @@ export default function ProfilePage() {
                         <AvatarFallback className="text-2xl">{getInitials(user.displayName)}</AvatarFallback>
                     </Avatar>
                     <Button variant="outline" type="button">Change Photo</Button>
+                     <Button variant="outline" type="button">Upload Resume</Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                        control={form.control}
-                        name="displayName"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Full Name</FormLabel>
-                                <FormControl>
-                                    <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input id="email" type="email" defaultValue={user.email ?? ''} disabled />
-                    </div>
+                    <FormField control={form.control} name="displayName" render={({ field }) => ( <FormItem> <FormLabel>Full Name</FormLabel> <FormControl> <Input {...field} /> </FormControl> <FormMessage /> </FormItem> )}/>
+                    <div className="space-y-2"> <Label htmlFor="email">Email</Label> <Input id="email" type="email" defaultValue={user.email ?? ''} disabled /> </div>
+                    <FormField control={form.control} name="phone" render={({ field }) => ( <FormItem> <FormLabel>Phone Number</FormLabel> <FormControl> <Input placeholder="e.g. +1 234 567 890" {...field} /> </FormControl> <FormMessage /> </FormItem> )}/>
+                    <FormField control={form.control} name="portfolioUrl" render={({ field }) => ( <FormItem> <FormLabel>Portfolio URL</FormLabel> <FormControl> <Input placeholder="https://your-portfolio.com" {...field} /> </FormControl> <FormMessage /> </FormItem> )}/>
                 </div>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                     {form.formState.isSubmitting ? 'Saving...' : 'Save Changes'}
@@ -243,3 +236,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

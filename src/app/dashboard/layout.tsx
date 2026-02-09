@@ -1,9 +1,10 @@
+
 "use client";
 
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { User, Briefcase, Settings, LogOut } from 'lucide-react';
+import { User, Briefcase, Settings, Building, FileText } from 'lucide-react';
 
 import { useUser } from '@/firebase';
 import {
@@ -50,11 +51,20 @@ export default function DashboardLayout({
     );
   }
   
-  const navItems = [
+  const employeeNavItems = [
     { href: '/dashboard/applications', label: 'Applications', icon: <Briefcase /> },
     { href: '/dashboard/profile', label: 'Profile', icon: <User /> },
     { href: '/dashboard/settings', label: 'Settings', icon: <Settings /> },
   ];
+
+  const employerNavItems = [
+    { href: '/dashboard/posted-jobs', label: 'Posted Jobs', icon: <FileText /> },
+    { href: '/dashboard/companies', label: 'My Companies', icon: <Building /> },
+    { href: '/dashboard/profile', label: 'Profile', icon: <User /> },
+    { href: '/dashboard/settings', label: 'Settings', icon: <Settings /> },
+  ];
+
+  const navItems = user.role === 'employer' ? employerNavItems : employeeNavItems;
 
   return (
     <SidebarProvider>
@@ -67,7 +77,7 @@ export default function DashboardLayout({
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <Link href={item.href} passHref >
-                  <SidebarMenuButton isActive={pathname === item.href}>
+                  <SidebarMenuButton isActive={pathname.startsWith(item.href)}>
                     {item.icon}
                     <span>{item.label}</span>
                   </SidebarMenuButton>
@@ -80,7 +90,7 @@ export default function DashboardLayout({
       <SidebarInset>
         <header className="flex items-center justify-between p-4 border-b">
             <SidebarTrigger />
-            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <h1 className="text-2xl font-bold">{user.role === 'employer' ? "Employer Dashboard" : "My Dashboard"}</h1>
         </header>
         <div className="p-8">
           {children}
@@ -89,3 +99,4 @@ export default function DashboardLayout({
     </SidebarProvider>
   );
 }
+

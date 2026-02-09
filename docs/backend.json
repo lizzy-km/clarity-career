@@ -9,7 +9,10 @@
         "email": { "type": "string", "format": "email", "description": "The user's email address." },
         "displayName": { "type": "string", "description": "The user's display name." },
         "photoURL": { "type": "string", "format": "uri", "description": "URL of the user's profile picture." },
-        "role": { "type": "string", "enum": ["employee", "employer"] }
+        "role": { "type": "string", "enum": ["employee", "employer"] },
+        "phone": { "type": "string", "description": "User's phone number." },
+        "portfolioUrl": { "type": "string", "format": "uri", "description": "URL of the user's portfolio." },
+        "resumeUrl": { "type": "string", "format": "uri", "description": "URL to the user's resume file." }
       },
       "required": ["uid", "email", "role"]
     },
@@ -39,9 +42,10 @@
             "name": { "type": "string" },
             "logoUrl": { "type": "string", "format": "uri" },
             "website": { "type": "string", "format": "uri" },
-            "description": { "type": "string" }
+            "description": { "type": "string" },
+            "ownerId": { "type": "string", "description": "The UID of the user who owns this company profile."}
         },
-        "required": ["name"]
+        "required": ["name", "ownerId"]
     },
     "CompanyReview": {
       "title": "Company Review",
@@ -100,14 +104,21 @@
         "type": "object",
         "properties": {
             "jobId": { "type": "string" },
-            "userId": { "type": "string" },
-            "status": { "type": "string", "enum": ["Saved", "Applied", "Interviewing", "Offered", "Rejected"] },
-            "appliedAt": { "type": "string", "format": "date-time" },
+            "companyId": { "type": "string" },
+            "applicantId": { "type": "string" },
+            "status": { "type": "string", "enum": ["Applied", "Interviewing", "Offered", "Rejected"] },
+            "submittedAt": { "type": "string", "format": "date-time" },
             "jobTitle": { "type": "string" },
             "company": { "type": "string" },
-            "companyLogoUrl": { "type": "string", "format": "uri" }
+            "companyLogoUrl": { "type": "string", "format": "uri" },
+            "applicantName": { "type": "string" },
+            "applicantEmail": { "type": "string", "format": "email" },
+            "applicantPhone": { "type": "string" },
+            "applicantPortfolio": { "type": "string", "format": "uri" },
+            "coverLetter": { "type": "string" },
+            "resumeUrl": { "type": "string", "format": "uri" }
         },
-        "required": ["jobId", "userId", "status", "jobTitle", "company"]
+        "required": ["jobId", "companyId", "applicantId", "status", "submittedAt", "jobTitle", "company", "applicantName", "applicantEmail"]
     }
   },
   "auth": {
@@ -138,9 +149,10 @@
         "schema": { "$ref": "#/backend/entities/InterviewExperience" },
         "description": "Collection of all interview experiences."
     },
-    "/users/{userId}/applications/{applicationId}": {
+    "/applications/{applicationId}": {
         "schema": { "$ref": "#/backend/entities/Application" },
-        "description": "Sub-collection of applications for a specific user."
+        "description": "Collection of all job applications."
     }
   }
 }
+
