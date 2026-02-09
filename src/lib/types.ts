@@ -71,6 +71,8 @@ export interface SalaryData {
   yearsOfExperience: number;
   submittedAt: Date;
   userId?: string;
+  company?: string;
+  companyId?: string;
 }
 
 export interface InterviewExperience {

@@ -44,14 +44,22 @@ export function addInterviewExperience(db: Firestore, user: UserProfile, data: I
     });
 }
 
-export function addSalary(db: Firestore, user: UserProfile | null, data: SalaryFormData) {
+export async function addSalary(db: Firestore, user: UserProfile | null, data: SalaryFormData) {
     const salaryRef = collection(db, 'salaries');
+
+    const companySnap = await getDoc(doc(db, 'companies', data.companyId));
+    if (!companySnap.exists()) {
+        throw new Error("Company not found");
+    }
+    const companyData = companySnap.data();
+
     addDoc(salaryRef, {
         ...data,
         salary: Number(data.salary),
         yearsOfExperience: Number(data.yearsOfExperience),
         userId: user?.uid, // Can be anonymous
         submittedAt: serverTimestamp(),
+        company: companyData?.name,
     }).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: 'salaries',
