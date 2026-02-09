@@ -3,13 +3,18 @@
 
 import { useUser, useFirestore } from "@/firebase";
 import { useRouter } from "next/navigation";
-import { query, where, collection, getDocs, QuerySnapshot } from "firebase/firestore";
-import type { Job, Company, Application } from "@/lib/types";
+import { query, where, collection, getDocs } from "firebase/firestore";
+import type { Job, Application, UserProfile } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
+import { JobForm, JobFormData } from '@/components/forms/job-form';
+import { addJob } from '@/firebase/firestore/writes';
+import { useToast } from '@/hooks/use-toast';
+import { PlusCircle } from "lucide-react";
 
 function PostedJobCard({ job, appCount }: { job: Job, appCount: number }) {
     return (
@@ -43,31 +48,35 @@ export default function PostedJobsPage() {
     const [jobs, setJobs] = useState<Job[]>([]);
     const [applications, setApplications] = useState<Application[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isJobFormOpen, setJobFormOpen] = useState(false);
+    const { toast } = useToast();
+
+    const fetchJobsAndApps = async () => {
+        if (!user || user.role !== 'employer') return;
+        setLoading(true);
+        const companiesRef = collection(firestore, 'companies');
+        const companiesQuery = query(companiesRef, where('ownerId', '==', user.uid));
+        const companySnap = await getDocs(companiesQuery);
+        const companyIds = companySnap.docs.map(doc => doc.id);
+
+        if (companyIds.length > 0) {
+            const jobsRef = collection(firestore, 'jobs');
+            const jobsQuery = query(jobsRef, where('companyId', 'in', companyIds));
+            const jobsSnap = await getDocs(jobsQuery);
+            const postedJobs = jobsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
+            setJobs(postedJobs);
+
+            const appsRef = collection(firestore, 'applications');
+            const appsQuery = query(appsRef, where('companyId', 'in', companyIds));
+            const appsSnap = await getDocs(appsQuery);
+            const companyApps = appsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Application));
+            setApplications(companyApps);
+        }
+        setLoading(false);
+    };
 
     useEffect(() => {
         if (user && user.role === 'employer') {
-            const fetchJobsAndApps = async () => {
-                setLoading(true);
-                const companiesRef = collection(firestore, 'companies');
-                const companiesQuery = query(companiesRef, where('ownerId', '==', user.uid));
-                const companySnap = await getDocs(companiesQuery);
-                const companyIds = companySnap.docs.map(doc => doc.id);
-
-                if (companyIds.length > 0) {
-                    const jobsRef = collection(firestore, 'jobs');
-                    const jobsQuery = query(jobsRef, where('companyId', 'in', companyIds));
-                    const jobsSnap = await getDocs(jobsQuery);
-                    const postedJobs = jobsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Job));
-                    setJobs(postedJobs);
-
-                    const appsRef = collection(firestore, 'applications');
-                    const appsQuery = query(appsRef, where('companyId', 'in', companyIds));
-                    const appsSnap = await getDocs(appsQuery);
-                    const companyApps = appsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Application));
-                    setApplications(companyApps);
-                }
-                setLoading(false);
-            };
             fetchJobsAndApps();
         } else if (!userLoading) {
             if(user && user.role !== 'employer') router.push('/dashboard');
@@ -78,14 +87,45 @@ export default function PostedJobsPage() {
         return applications.filter(app => app.jobId === jobId).length;
     };
 
+    const handleJobSubmit = (data: JobFormData) => {
+        if (!user) return;
+        addJob(firestore, user as UserProfile, data);
+        toast({
+          title: "Success!",
+          description: "Your job has been posted.",
+        });
+        setJobFormOpen(false);
+        // Refetch jobs after submission to show the new one
+        fetchJobsAndApps();
+    }
+
     if (!userLoading && user?.role !== 'employer') {
         return null;
     }
 
     return (
         <div>
-            <h1 className="text-3xl font-bold font-headline">Posted Jobs</h1>
-            <p className="text-muted-foreground mb-8">View and manage your company's job listings.</p>
+            <div className="flex justify-between items-center mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline">Posted Jobs</h1>
+                    <p className="text-muted-foreground">View and manage your company's job listings.</p>
+                </div>
+                <Dialog open={isJobFormOpen} onOpenChange={setJobFormOpen}>
+                    <DialogTrigger asChild>
+                        <Button>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Post a Job
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[625px]">
+                        <DialogHeader>
+                            <DialogTitle>Post a New Job</DialogTitle>
+                            <DialogDescription>Fill out the form below to post a new job opening.</DialogDescription>
+                        </DialogHeader>
+                        <JobForm onSubmit={handleJobSubmit} />
+                    </DialogContent>
+                </Dialog>
+            </div>
 
              {loading && <div className="grid md:grid-cols-2 gap-6"><Skeleton className="h-48 w-full" /><Skeleton className="h-48 w-full" /></div>}
             

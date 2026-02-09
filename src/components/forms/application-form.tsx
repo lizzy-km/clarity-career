@@ -5,19 +5,18 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import type { UserProfile, Job } from '@/lib/types';
-import { File } from 'lucide-react';
 
 const applicationFormSchema = z.object({
   name: z.string().min(2, "Name is required."),
   email: z.string().email("A valid email is required."),
   phone: z.string().optional(),
   portfolioUrl: z.string().url("Please enter a valid URL.").or(z.literal('')).optional(),
+  resumeUrl: z.string().min(1, "A resume URL is required.").url("Please enter a valid URL."),
   coverLetter: z.string().optional(),
-  // resume: ... for file upload later
 });
 
 export type ApplicationFormData = z.infer<typeof applicationFormSchema>;
@@ -36,6 +35,7 @@ export function ApplicationForm({ user, job, onSubmit }: ApplicationFormProps) {
       email: user.email || "",
       phone: user.phone || "",
       portfolioUrl: user.portfolioUrl || "",
+      resumeUrl: user.resumeUrl || "",
       coverLetter: "",
     }
   });
@@ -53,6 +53,23 @@ export function ApplicationForm({ user, job, onSubmit }: ApplicationFormProps) {
         </div>
 
         <FormField
+            control={form.control}
+            name="resumeUrl"
+            render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Resume URL</FormLabel>
+                    <FormControl>
+                        <Input placeholder="https://docs.google.com/document/d/..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    <FormDescription>
+                        Link to your resume (e.g., Google Docs, LinkedIn profile, or a PDF hosted online).
+                    </FormDescription>
+                </FormItem>
+            )}
+        />
+
+        <FormField
           control={form.control}
           name="coverLetter"
           render={({ field }) => (
@@ -65,21 +82,6 @@ export function ApplicationForm({ user, job, onSubmit }: ApplicationFormProps) {
             </FormItem>
           )}
         />
-
-        <div>
-            <FormLabel>Resume</FormLabel>
-            <div className="mt-2 flex items-center justify-between rounded-lg border p-3">
-                <div className="flex items-center gap-2">
-                    <File className="h-6 w-6 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                        {user.resumeUrl ? 'Using resume from your profile.' : 'Please upload a resume on your profile.'}
-                    </span>
-                </div>
-                <Button type="button" variant="outline" size="sm" disabled>Change</Button>
-            </div>
-             <p className="text-xs text-muted-foreground mt-1">File upload coming soon. For now, please ensure your resume is uploaded on your profile page.</p>
-        </div>
-
 
         <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? 'Submitting...' : 'Submit Application'}

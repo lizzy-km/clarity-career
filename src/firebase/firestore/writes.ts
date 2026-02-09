@@ -102,7 +102,7 @@ export function submitApplication(db: Firestore, user: UserProfile, job: Job, ap
         applicantPhone: applicationData.phone,
         applicantPortfolio: applicationData.portfolioUrl,
         coverLetter: applicationData.coverLetter,
-        // resumeUrl: applicationData.resumeUrl, // Add when file upload is ready
+        resumeUrl: applicationData.resumeUrl,
         // Status
         status: 'Applied',
         submittedAt: serverTimestamp(),
