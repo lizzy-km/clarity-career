@@ -224,6 +224,7 @@ export default function CompanyDetailPage() {
               </Card>
           </TabsContent>
       </Tabs>
+      {/* hh */}
 
     </div>
   );
