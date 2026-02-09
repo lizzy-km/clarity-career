@@ -50,10 +50,10 @@ export default function ApplicationsPage() {
   const { user } = useUser();
   const firestore = useFirestore();
   
-  const applicationsQuery = user ? query(
+  const applicationsQuery = query(
     collection(firestore, 'applications'),
-    where('applicantId', '==', user.uid)
-  ) : null;
+    where('applicantId', '==', user? user.uid:'')
+  ) 
   
   const { data: applications, loading } = useCollection<Application>(`applications`, applicationsQuery);
 
@@ -61,7 +61,7 @@ export default function ApplicationsPage() {
 
   const handleStatusChange = (applicationId: string, status: string) => {
     if (!user) return;
-    updateApplicationStatus(applicationId, status);
+    updateApplicationStatus(firestore, applicationId, status);
     toast({
         title: "Status Updated",
         description: `The application status has been changed to ${status}.`
