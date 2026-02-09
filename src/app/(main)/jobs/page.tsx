@@ -10,13 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Image from 'next/image';
 import { MapPin, Briefcase, DollarSign, Bookmark } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { saveApplication, addJob } from '@/firebase/firestore/writes';
+import { saveApplication, addJob, applyForJob } from '@/firebase/firestore/writes';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { JobForm, JobFormData } from '@/components/forms/job-form';
 
-function JobCard({ job, onSave }: { job: Job, onSave: (job: Job) => void }) {
+function JobCard({ job, onSave, onApply, user }: { job: Job, onSave: (job: Job) => void, onApply: (job: Job) => void, user: UserProfile | null }) {
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="flex flex-row items-start gap-4">
@@ -43,11 +43,15 @@ function JobCard({ job, onSave }: { job: Job, onSave: (job: Job) => void }) {
           Posted {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(job.postedAt as any))}
         </span>
         <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => onSave(job)}>
-                <Bookmark className="h-4 w-4 mr-2" />
-                Save
-            </Button>
-            <Button size="sm">Apply Now</Button>
+            {user && user.role === 'employee' && (
+                <>
+                    <Button variant="outline" size="sm" onClick={() => onSave(job)}>
+                        <Bookmark className="h-4 w-4 mr-2" />
+                        Save
+                    </Button>
+                    <Button size="sm" onClick={() => onApply(job)}>Apply Now</Button>
+                </>
+            )}
         </div>
       </CardFooter>
     </Card>
@@ -133,6 +137,23 @@ function JobsPageContent() {
     });
   };
 
+  const handleApplyJob = (job: Job) => {
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Authentication required",
+            description: "You must be logged in to apply for jobs.",
+        });
+        router.push('/login');
+        return;
+    }
+    applyForJob(firestore, user.uid, job);
+    toast({
+        title: "Applied!",
+        description: `Your application for ${job.title} has been submitted.`,
+    });
+  };
+
   const handleJobSubmit = (data: JobFormData) => {
     if (!user) return;
     addJob(firestore, user as UserProfile, data);
@@ -154,23 +175,25 @@ function JobsPageContent() {
 
   return (
     <div>
-      <div className="flex justify-between items-center  ">
+      <div className="flex justify-between items-center">
         <div>
             <h1 className="text-4xl font-bold font-headline mb-2">Find Your Next Opportunity</h1>
             <p className="text-lg text-muted-foreground mb-8">Search through thousands of open positions.</p>
         </div>
-        <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
-            <DialogTrigger asChild>
-                <Button disabled={!user}>Post a Job</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[625px]">
-                <DialogHeader>
-                    <DialogTitle>Post a New Job</DialogTitle>
-                    <DialogDescription>Fill out the form below to post a new job opening.</DialogDescription>
-                </DialogHeader>
-                <JobForm onSubmit={handleJobSubmit} />
-            </DialogContent>
-        </Dialog>
+        {user?.role === 'employer' && (
+            <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
+                <DialogTrigger asChild>
+                    <Button>Post a Job</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[625px]">
+                    <DialogHeader>
+                        <DialogTitle>Post a New Job</DialogTitle>
+                        <DialogDescription>Fill out the form below to post a new job opening.</DialogDescription>
+                    </DialogHeader>
+                    <JobForm onSubmit={handleJobSubmit} />
+                </DialogContent>
+            </Dialog>
+        )}
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 p-4 border rounded-lg bg-card">
@@ -218,7 +241,7 @@ function JobsPageContent() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {loading && <> <JobCardSkeleton /> <JobCardSkeleton /> <JobCardSkeleton /> <JobCardSkeleton /> </>}
         {filteredJobs.map(job => (
-          <JobCard key={job.id} job={job} onSave={handleSaveJob} />
+          <JobCard key={job.id} job={job} onSave={handleSaveJob} onApply={handleApplyJob} user={user} />
         ))}
          {!loading && filteredJobs.length === 0 && (
             <div className="lg:col-span-2 text-center text-muted-foreground py-16">

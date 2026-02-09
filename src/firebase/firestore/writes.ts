@@ -105,6 +105,26 @@ export function saveApplication(db: Firestore, userId: string, job: Job) {
   });
 }
 
+export function applyForJob(db: Firestore, userId: string, job: Job) {
+  const applicationRef = doc(db, 'users', userId, 'applications', job.id);
+  setDoc(applicationRef, {
+    jobId: job.id,
+    userId: userId,
+    status: 'Applied',
+    appliedAt: serverTimestamp(),
+    jobTitle: job.title,
+    company: job.company,
+    companyLogoUrl: job.companyLogoUrl,
+  }).catch(async (serverError) => {
+    const permissionError = new FirestorePermissionError({
+      path: applicationRef.path,
+      operation: 'create',
+      requestResourceData: { jobId: job.id, status: 'Applied' },
+    });
+    errorEmitter.emit('permission-error', permissionError);
+  });
+}
+
 export function updateApplicationStatus(db: Firestore, userId: string, applicationId: string, status: string) {
   const applicationRef = doc(db, 'users', userId, 'applications', applicationId);
   const dataToUpdate: { status: string; appliedAt?: any } = { status };

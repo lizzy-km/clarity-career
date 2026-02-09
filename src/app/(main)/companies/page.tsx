@@ -80,18 +80,20 @@ export default function CompaniesPage() {
           <h1 className="text-4xl font-bold font-headline mb-2">Companies</h1>
           <p className="text-lg text-muted-foreground">Browse companies and see what they're about.</p>
         </div>
-        <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
-            <DialogTrigger asChild>
-                <Button disabled={!user}>Add a Company</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[625px]">
-                <DialogHeader>
-                    <DialogTitle>Add a Company</DialogTitle>
-                    <DialogDescription>Add a new company profile to our database.</DialogDescription>
-                </DialogHeader>
-                <CompanyForm onSubmit={handleCompanySubmit} />
-            </DialogContent>
-        </Dialog>
+        {user?.role === 'employer' && (
+          <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
+              <DialogTrigger asChild>
+                  <Button>Add a Company</Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[625px]">
+                  <DialogHeader>
+                      <DialogTitle>Add a Company</DialogTitle>
+                      <DialogDescription>Add a new company profile to our database.</DialogDescription>
+                  </DialogHeader>
+                  <CompanyForm onSubmit={handleCompanySubmit} />
+              </DialogContent>
+          </Dialog>
+        )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading && Array.from({ length: 6 }).map((_, i) => <CompanyCardSkeleton key={i} />)}

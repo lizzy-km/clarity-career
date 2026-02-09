@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<'employee' | 'employer'>('employee');
   const [loading, setLoading] = useState(false);
   const { user, loading: userLoading } = useUser();
 
@@ -42,6 +44,7 @@ export default function SignupPage() {
         displayName: name,
         email: email,
         photoURL: userCredential.user.photoURL,
+        role: role,
       });
 
       toast({ title: "Success", description: "Account created successfully." });
@@ -78,6 +81,19 @@ export default function SignupPage() {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} />
           </div>
+           <div className="grid gap-2">
+            <Label>I am an...</Label>
+            <RadioGroup defaultValue="employee" onValueChange={(value) => setRole(value as 'employee' | 'employer')} className="flex gap-4 pt-2">
+                <div className="flex items-center space-x-2">
+                <RadioGroupItem value="employee" id="employee" />
+                <Label htmlFor="employee" className="font-normal">Employee</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                <RadioGroupItem value="employer" id="employer" />
+                <Label htmlFor="employer" className="font-normal">Employer</Label>
+                </div>
+            </RadioGroup>
+        </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button className="w-full" type="submit" disabled={loading}>
