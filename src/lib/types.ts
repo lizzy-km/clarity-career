@@ -11,6 +11,7 @@ export interface UserProfile {
   workExperience?: WorkExperience[];
   education?: Education[];
   skills?: string[];
+  savedJobs?: string[];
 }
 
 export interface WorkExperience {

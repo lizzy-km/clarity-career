@@ -8,17 +8,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { MapPin, Briefcase, DollarSign } from 'lucide-react';
+import Link from 'next/link';
+import { MapPin, Briefcase, DollarSign, Heart } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { addJob, submitApplication } from '@/firebase/firestore/writes';
+import { addJob, submitApplication, toggleSaveJob } from '@/firebase/firestore/writes';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { JobForm, JobFormData } from '@/components/forms/job-form';
-import { ApplicationForm, ApplicationFormData } from '@/components/forms/application-form';
 
 
-function JobCard({ job, onApply, user }: { job: Job, onApply: (job: Job) => void, user: UserProfile | null }) {
+function JobCard({ job, user, onSave, isSaved }: { job: Job, user: UserProfile | null, onSave: (jobId: string) => void, isSaved: boolean }) {
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="flex flex-row items-start gap-4">
@@ -45,8 +45,13 @@ function JobCard({ job, onApply, user }: { job: Job, onApply: (job: Job) => void
           Posted {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(job.postedAt as any))}
         </span>
         <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+                <Link href={`/jobs/${job.id}`}>View Details</Link>
+            </Button>
             {user && user.role === 'employee' && (
-                <Button size="sm" onClick={() => onApply(job)}>Apply Now</Button>
+                <Button variant="ghost" size="icon" onClick={() => onSave(job.id)}>
+                    <Heart className={isSaved ? "fill-red-500 text-red-500" : "text-muted-foreground"} />
+                </Button>
             )}
         </div>
       </CardFooter>
@@ -90,9 +95,7 @@ function JobsPageContent() {
 
   // State for forms/dialogs
   const [isJobFormOpen, setJobFormOpen] = useState(false);
-  const [isApplyFormOpen, setApplyFormOpen] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-
+  
   // States for filters
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [location, setLocation] = useState('');
@@ -120,29 +123,13 @@ function JobsPageContent() {
   }, [jobs, searchTerm, location, industry, minSalary, maxSalary]);
 
   
-  const handleOpenApplyDialog = (job: Job) => {
+  const handleSaveToggle = (jobId: string) => {
     if (!user) {
-        toast({
-            variant: "destructive",
-            title: "Authentication required",
-            description: "You must be logged in to apply for jobs.",
-        });
-        router.push('/login');
+        toast({ variant: "destructive", title: "Login required", description: "You need to be logged in to save jobs." });
         return;
     }
-    setSelectedJob(job);
-    setApplyFormOpen(true);
-  };
-  
-  const handleApplicationSubmit = (data: ApplicationFormData) => {
-    if (!user || !selectedJob) return;
-    submitApplication(firestore, user, selectedJob, data);
-     toast({
-        title: "Applied!",
-        description: `Your application for ${selectedJob.title} has been submitted.`,
-    });
-    setApplyFormOpen(false);
-    setSelectedJob(null);
+    toggleSaveJob(firestore, user.uid, jobId);
+    toast({ title: "Updated", description: "Your saved jobs list is updated." });
   }
 
   const handleJobSubmit = (data: JobFormData) => {
@@ -232,7 +219,13 @@ function JobsPageContent() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {loading && <> <JobCardSkeleton /> <JobCardSkeleton /> <JobCardSkeleton /> <JobCardSkeleton /> </>}
         {filteredJobs.map(job => (
-          <JobCard key={job.id} job={job} onApply={handleOpenApplyDialog} user={user} />
+          <JobCard 
+            key={job.id} 
+            job={job} 
+            onSave={handleSaveToggle} 
+            isSaved={user?.savedJobs?.includes(job.id) || false} 
+            user={user} 
+          />
         ))}
          {!loading && filteredJobs.length === 0 && (
             <div className="lg:col-span-2 text-center text-muted-foreground py-16">
@@ -241,16 +234,6 @@ function JobsPageContent() {
             </div>
         )}
       </div>
-
-      <Dialog open={isApplyFormOpen} onOpenChange={setApplyFormOpen}>
-          <DialogContent className="sm:max-w-[625px]">
-              <DialogHeader>
-                  <DialogTitle>Apply for {selectedJob?.title}</DialogTitle>
-                  <DialogDescription>Submit your application for {selectedJob?.title} at {selectedJob?.company}.</DialogDescription>
-              </DialogHeader>
-              {user && selectedJob && <ApplicationForm user={user} job={selectedJob} onSubmit={handleApplicationSubmit} />}
-          </DialogContent>
-      </Dialog>
     </div>
   );
 }
@@ -264,4 +247,3 @@ export default function JobsPage() {
         </Suspense>
     )
 }
-

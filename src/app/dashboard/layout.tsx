@@ -4,7 +4,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { User, Briefcase, Settings, Building, FileText } from 'lucide-react';
+import { User, Briefcase, Settings, Building, FileText, Heart } from 'lucide-react';
 
 import { useUser } from '@/firebase';
 import {
@@ -53,6 +53,7 @@ export default function DashboardLayout({
   
   const employeeNavItems = [
     { href: '/dashboard/applications', label: 'Applications', icon: <Briefcase /> },
+    { href: '/dashboard/saved-jobs', label: 'Saved Jobs', icon: <Heart /> },
     { href: '/dashboard/profile', label: 'Profile', icon: <User /> },
     { href: '/dashboard/settings', label: 'Settings', icon: <Settings /> },
   ];
@@ -99,4 +100,3 @@ export default function DashboardLayout({
     </SidebarProvider>
   );
 }
-

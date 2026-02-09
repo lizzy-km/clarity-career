@@ -1,5 +1,5 @@
 
-import { collection, addDoc, serverTimestamp, doc, setDoc, updateDoc, Firestore, getDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, setDoc, updateDoc, Firestore, getDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import type { Job, UserProfile } from '@/lib/types';
@@ -201,3 +201,31 @@ export function updateUserProfile(db: Firestore, userId: string, data: Partial<U
     });
 }
 
+export async function toggleSaveJob(db: Firestore, userId: string, jobId: string) {
+    const userRef = doc(db, 'users', userId);
+    try {
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+            const userData = userSnap.data();
+            const savedJobs = userData.savedJobs || [];
+            if (savedJobs.includes(jobId)) {
+                // Unsave job
+                await updateDoc(userRef, {
+                    savedJobs: arrayRemove(jobId)
+                });
+            } else {
+                // Save job
+                await updateDoc(userRef, {
+                    savedJobs: arrayUnion(jobId)
+                });
+            }
+        }
+    } catch (error) {
+        console.error("Error saving job: ", error);
+        const permissionError = new FirestorePermissionError({
+            path: userRef.path,
+            operation: 'update',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+    }
+}
