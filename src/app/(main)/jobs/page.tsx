@@ -17,6 +17,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { JobForm, JobFormData } from '@/components/forms/job-form';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/lib/utils';
 
 
 function JobCard({ job, user, onSave, isSaved }: { job: Job, user: UserProfile | null, onSave: (jobId: string) => void, isSaved: boolean }) {
@@ -41,7 +42,7 @@ function JobCard({ job, user, onSave, isSaved }: { job: Job, user: UserProfile |
             {job.isSalaryNegotiable ? (
                 <span>Negotiable</span>
             ) : (
-                <span>{`$${(job.salaryMin! / 1000)}k - $${(job.salaryMax! / 1000)}k`}</span>
+                <span>{formatCurrency(job.salaryMin, job.currency)} - {formatCurrency(job.salaryMax, job.currency)}</span>
             )}
         </div>
          <div className="flex flex-wrap gap-2 pt-2">

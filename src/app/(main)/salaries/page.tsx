@@ -13,12 +13,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { addSalary } from '@/firebase/firestore/writes';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { formatCurrency } from '@/lib/utils';
 
 const salaryFormSchema = z.object({
     jobTitle: z.string().min(2, { message: "Job title must be at least 2 characters." }),
     companyId: z.string().min(1, { message: "Please select a company." }),
     location: z.string().min(2, { message: "Location must be at least 2 characters." }),
     salary: z.coerce.number().min(1, { message: "Please enter a valid salary." }),
+    currency: z.enum(['MMK', 'USD']).default('MMK'),
     yearsOfExperience: z.coerce.number().min(0, { message: "Years of experience cannot be negative." }),
 });
 
@@ -38,6 +40,7 @@ export default function SalariesPage() {
       companyId: "",
       location: "",
       salary: undefined,
+      currency: "MMK",
       yearsOfExperience: undefined,
     },
   });
@@ -52,10 +55,6 @@ export default function SalariesPage() {
     });
     form.reset();
   };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'MMK', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -90,7 +89,7 @@ export default function SalariesPage() {
                   <TableCell>{salary.company}</TableCell>
                   <TableCell>{salary.location}</TableCell>
                   <TableCell>{salary.yearsOfExperience}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(salary.salary)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(salary.salary, salary.currency)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -153,19 +152,42 @@ export default function SalariesPage() {
                             </FormItem>
                         )}
                     />
-                    <FormField
-                        control={form.control}
-                        name="salary"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Montaly Salary (MMK)</FormLabel>
-                                <FormControl>
-                                    <Input type="number" placeholder="e.g., 120000" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                     <div className="grid grid-cols-3 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="salary"
+                            render={({ field }) => (
+                                <FormItem className="col-span-2">
+                                    <FormLabel>Montaly Salary</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" placeholder="e.g., 120000" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="currency"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Currency</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a currency" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="MMK">MMK</SelectItem>
+                                            <SelectItem value="USD">USD</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                     <FormField
                         control={form.control}
                         name="yearsOfExperience"

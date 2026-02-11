@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Globe, Users, Heart, Star } from 'lucide-react';
 import { toggleSaveJob } from '@/firebase/firestore/writes';
 import { useToast } from '@/hooks/use-toast';
+import { formatCurrency } from '@/lib/utils';
 
 
 function JobListItem({ job, user, onSave, isSaved }: { job: Job, user: UserProfile | null, onSave: (jobId: string) => void, isSaved: boolean }) {
@@ -29,7 +30,9 @@ function JobListItem({ job, user, onSave, isSaved }: { job: Job, user: UserProfi
                 <CardDescription>{job.location}</CardDescription>
             </div>
             <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">{`$${(job.salaryMin / 1000)}k - $${(job.salaryMax / 1000)}k`}</span>
+                <span className="text-sm text-muted-foreground">
+                     {job.isSalaryNegotiable ? 'Negotiable' : `${formatCurrency(job.salaryMin, job.currency)} - ${formatCurrency(job.salaryMax, job.currency)}`}
+                </span>
                 {user && (
                     <Button variant="ghost" size="icon" onClick={() => onSave(job.id)}>
                         <Heart className={isSaved ? "fill-red-500 text-red-500" : "text-muted-foreground"} />
@@ -105,9 +108,8 @@ export default function CompanyDetailPage() {
   const loading = companyLoading || jobsLoading || reviewsLoading || salariesLoading;
 
 
-// const loading = false
 
-  console.log('bbbbb')
+
   const handleSaveToggle = (jobId: string) => {
     if (!user) {
         toast({ variant: "destructive", title: "Login required", description: "You need to be logged in to save jobs." });
@@ -115,10 +117,6 @@ export default function CompanyDetailPage() {
     }
     toggleSaveJob(firestore, user.uid, jobId);
     toast({ title: "Updated", description: "Your saved jobs list is updated." });
-  }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'MMK', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
   }
 
   if (loading) {
@@ -212,7 +210,7 @@ export default function CompanyDetailPage() {
                                   <TableCell className="font-medium">{salary.jobTitle}</TableCell>
                                   <TableCell>{salary.location}</TableCell>
                                   <TableCell>{salary.yearsOfExperience}</TableCell>
-                                  <TableCell className="text-right">{formatCurrency(salary.salary)}</TableCell>
+                                  <TableCell className="text-right">{formatCurrency(salary.salary, salary.currency)}</TableCell>
                               </TableRow>
                           )) : (
                             <TableRow>
@@ -224,7 +222,6 @@ export default function CompanyDetailPage() {
               </Card>
           </TabsContent>
       </Tabs>
-      {/* hh */}
 
     </div>
   );

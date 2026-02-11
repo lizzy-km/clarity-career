@@ -52,6 +52,7 @@ export interface Job {
   salaryMin?: number | null;
   salaryMax?: number | null;
   isSalaryNegotiable?: boolean;
+  currency?: 'MMK' | 'USD';
   industry: string;
   description: string;
   postedAt: Date;
@@ -81,6 +82,7 @@ export interface SalaryData {
   jobTitle: string;
   location: string;
   salary: number;
+  currency?: 'MMK' | 'USD';
   yearsOfExperience: number;
   submittedAt: Date;
   userId?: string;

@@ -21,6 +21,7 @@ const jobFormSchema = z.object({
   isSalaryNegotiable: z.boolean().default(false),
   salaryMin: z.coerce.number().optional(),
   salaryMax: z.coerce.number().optional(),
+  currency: z.enum(['MMK', 'USD']).default('MMK'),
   industry: z.string().min(2, "Industry is required."),
   description: z.string().min(20, "Description must be at least 20 characters."),
   positionLevel: z.string().min(1, "Position level is required"),
@@ -71,6 +72,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
         industry: "",
         description: "",
         isSalaryNegotiable: false,
+        currency: "MMK",
     }
   });
   
@@ -170,7 +172,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
                 </FormItem>
             )}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <FormField
                 control={form.control}
                 name="salaryMin"
@@ -178,7 +180,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
                     <FormItem>
                     <FormLabel>Minimum Salary</FormLabel>
                     <FormControl>
-                        <Input type="number" placeholder="e.g. 120000" {...field} disabled={isSalaryNegotiable} />
+                        <Input type="number" placeholder="e.g. 800000" {...field} disabled={isSalaryNegotiable} />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -191,9 +193,30 @@ export function JobForm({ onSubmit }: JobFormProps) {
                     <FormItem>
                     <FormLabel>Maximum Salary</FormLabel>
                     <FormControl>
-                        <Input type="number" placeholder="e.g. 180000" {...field} disabled={isSalaryNegotiable} />
+                        <Input type="number" placeholder="e.g. 1200000" {...field} disabled={isSalaryNegotiable} />
                     </FormControl>
                     <FormMessage />
+                    </FormItem>
+                )}
+            />
+             <FormField
+                control={form.control}
+                name="currency"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Currency</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSalaryNegotiable}>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select currency" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="MMK">MMK</SelectItem>
+                                <SelectItem value="USD">USD</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
                     </FormItem>
                 )}
             />

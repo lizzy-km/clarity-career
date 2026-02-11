@@ -14,6 +14,7 @@ import { ApplicationForm, ApplicationFormData } from '@/components/forms/applica
 import { useToast } from '@/hooks/use-toast';
 import { submitApplication, toggleSaveJob } from '@/firebase/firestore/writes';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/lib/utils';
 
 export default function JobDetailPage() {
     const params = useParams();
@@ -103,7 +104,7 @@ export default function JobDetailPage() {
                     {job.isSalaryNegotiable ? (
                         <div className="flex items-center gap-2"><DollarSign className="h-4 w-4" /> <span>Negotiable Salary</span></div>
                     ) : (
-                        <div className="flex items-center gap-2"><DollarSign className="h-4 w-4" /> <span>{`$${(job.salaryMin! / 1000)}k - $${(job.salaryMax! / 1000)}k`}</span></div>
+                        <div className="flex items-center gap-2"><DollarSign className="h-4 w-4" /> <span>{formatCurrency(job.salaryMin, job.currency)} - {formatCurrency(job.salaryMax, job.currency)}</span></div>
                     )}
                     {job.workMode && <Badge variant="secondary">{job.workMode}</Badge>}
                     {job.employmentType && <Badge variant="secondary">{job.employmentType}</Badge>}

@@ -183,6 +183,7 @@ export async function addJob(db: Firestore, user: UserProfile, data: JobFormData
         isSalaryNegotiable: data.isSalaryNegotiable,
         salaryMin: data.isSalaryNegotiable ? null : Number(data.salaryMin),
         salaryMax: data.isSalaryNegotiable ? null : Number(data.salaryMax),
+        currency: data.currency,
     };
 
     addDoc(jobRef, jobDoc).catch(async (serverError) => {
