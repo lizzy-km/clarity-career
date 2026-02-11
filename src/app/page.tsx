@@ -14,6 +14,9 @@ import { cn } from '@/lib/utils';
 import {
   Sheet,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
 
@@ -62,12 +65,18 @@ function HomeHeader() {
             <div className="md:hidden">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className={cn("hover:bg-transparent focus:bg-transparent focus-visible:bg-transparent", scrolled ? "text-primary hover:text-primary" : "text-primary-foreground hover:text-white")}>
+                  <Button variant="ghost" size="icon" className={cn("hover:bg-transparent focus:bg-transparent focus-visible:bg-transparent", scrolled ? "text-primary hover:text-primary" : "text-white hover:text-white")}>
                     <Menu className="h-6 w-6" />
                     <span className="sr-only">Toggle navigation menu</span>
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right">
+                  <SheetHeader className="sr-only">
+                    <SheetTitle>Mobile Menu</SheetTitle>
+                    <SheetDescription>
+                      A list of navigation links for the ClarityCareer application.
+                    </SheetDescription>
+                  </SheetHeader>
                   <div className="flex flex-col gap-6 pt-12">
                     <Logo />
                     <nav className="flex flex-col gap-4 text-lg font-medium">
@@ -232,5 +241,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    
