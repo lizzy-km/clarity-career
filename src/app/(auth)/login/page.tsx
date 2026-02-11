@@ -100,7 +100,6 @@ export default function LoginPage() {
   const pageLoading = userLoading || isCheckingRedirect;
 
 
-  console.log('User:', userLoading,isCheckingRedirect);
 
   if (pageLoading) {
     return (

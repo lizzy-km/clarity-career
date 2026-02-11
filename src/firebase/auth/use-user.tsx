@@ -22,7 +22,6 @@ export function useUser() {
   }, [auth]);
 
 
-    console.log('bbbbb',loading, profileLoading);
 
 
   const finishedLoading = !loading && !profileLoading;
