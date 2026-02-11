@@ -133,30 +133,18 @@ export default function SettingsPage() {
                 </CardHeader>
                 <CardContent>
                      <RadioGroup value={theme} onValueChange={handleThemeChange} className="flex flex-col space-y-1">
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                            <RadioGroupItem value="light" />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                            Light
-                            </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                            <RadioGroupItem value="dark" />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                            Dark
-                            </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                            <RadioGroupItem value="system" />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                            System
-                            </FormLabel>
-                        </FormItem>
+                        <div className="flex items-center space-x-3">
+                            <RadioGroupItem value="light" id="theme-light" />
+                            <Label htmlFor="theme-light" className="font-normal">Light</Label>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                            <RadioGroupItem value="dark" id="theme-dark" />
+                            <Label htmlFor="theme-dark" className="font-normal">Dark</Label>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                            <RadioGroupItem value="system" id="theme-system" />
+                            <Label htmlFor="theme-system" className="font-normal">System</Label>
+                        </div>
                     </RadioGroup>
                 </CardContent>
             </Card>
