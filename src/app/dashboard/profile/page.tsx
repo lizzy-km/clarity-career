@@ -136,8 +136,8 @@ export default function ProfilePage() {
                         <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? ''} data-ai-hint="person portrait" />
                         <AvatarFallback className="text-2xl">{getInitials(user.displayName)}</AvatarFallback>
                     </Avatar>
-                    <Button variant="outline" type="button">Change Photo</Button>
-                     <Button variant="outline" type="button">Upload Resume</Button>
+                    {/* <Button variant="outline" type="button">Change Photo</Button>
+                     <Button variant="outline" type="button">Upload Resume</Button> */}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField control={form.control} name="displayName" render={({ field }) => ( <FormItem> <FormLabel>Full Name</FormLabel> <FormControl> <Input {...field} /> </FormControl> <FormMessage /> </FormItem> )}/>
