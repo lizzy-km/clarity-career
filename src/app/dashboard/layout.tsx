@@ -1,12 +1,13 @@
-
 "use client";
 
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { User, Briefcase, Settings, Building, FileText, Heart } from 'lucide-react';
+import { User, Briefcase, Settings, Building, FileText, Heart, LogOut } from 'lucide-react';
+import { signOut } from 'firebase/auth';
 
-import { useUser } from '@/firebase';
+
+import { useUser, useAuth } from '@/firebase';
 import {
   Sidebar,
   SidebarContent,
@@ -29,6 +30,7 @@ export default function DashboardLayout({
   const { user, loading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
+  const auth = useAuth();
 
 
   useEffect(() => {
@@ -36,6 +38,11 @@ export default function DashboardLayout({
       router.push('/login');
     }
   }, [user, loading, router]);
+  
+  const handleSignOut = async () => {
+    await signOut(auth);
+    router.push('/');
+  };
 
   if (loading || !user) {
     return (
@@ -88,6 +95,16 @@ export default function DashboardLayout({
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
+          <div className="mt-auto">
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton onClick={handleSignOut}>
+                        <LogOut />
+                        <span>Log Out</span>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+          </div>
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
