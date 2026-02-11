@@ -28,9 +28,14 @@
         "location": { "type": "string" },
         "salaryMin": { "type": "number" },
         "salaryMax": { "type": "number" },
+        "isSalaryNegotiable": { "type": "boolean" },
         "industry": { "type": "string" },
         "description": { "type": "string" },
-        "postedAt": { "type": "string", "format": "date-time" }
+        "postedAt": { "type": "string", "format": "date-time" },
+        "positionLevel": { "type": "string" },
+        "experienceRequired": { "type": "string" },
+        "employmentType": { "type": "string" },
+        "workMode": { "type": "string" }
       },
       "required": ["title", "companyId", "company", "location", "description", "postedAt"]
     },

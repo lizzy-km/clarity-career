@@ -16,19 +16,20 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { JobForm, JobFormData } from '@/components/forms/job-form';
+import { Badge } from '@/components/ui/badge';
 
 
 function JobCard({ job, user, onSave, isSaved }: { job: Job, user: UserProfile | null, onSave: (jobId: string) => void, isSaved: boolean }) {
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="hover:shadow-lg transition-shadow h-full flex flex-col">
       <CardHeader className="flex flex-row items-start gap-4">
         <Image src={job.companyLogoUrl} alt={`${job.company} logo`} width={50} height={50} className="rounded-lg border" data-ai-hint="company logo" />
         <div>
-          <CardTitle className="text-xl">{job.title}</CardTitle>
+          <CardTitle className="text-xl hover:underline"><Link href={`/jobs/${job.id}`}>{job.title}</Link></CardTitle>
           <CardDescription className="text-base">{job.company}</CardDescription>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-2 flex-grow">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" /> <span>{job.location}</span>
         </div>
@@ -36,11 +37,21 @@ function JobCard({ job, user, onSave, isSaved }: { job: Job, user: UserProfile |
           <Briefcase className="h-4 w-4" /> <span>{job.industry}</span>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <DollarSign className="h-4 w-4" /> <span>{`$${(job.salaryMin / 1000)}k - $${(job.salaryMax / 1000)}k`}</span>
+          <DollarSign className="h-4 w-4" /> 
+            {job.isSalaryNegotiable ? (
+                <span>Negotiable</span>
+            ) : (
+                <span>{`$${(job.salaryMin! / 1000)}k - $${(job.salaryMax! / 1000)}k`}</span>
+            )}
         </div>
-        <p className="pt-2 text-sm text-foreground/80 line-clamp-3">{job.description}</p>
+         <div className="flex flex-wrap gap-2 pt-2">
+            {job.workMode && <Badge variant="outline">{job.workMode}</Badge>}
+            {job.employmentType && <Badge variant="outline">{job.employmentType}</Badge>}
+            {job.positionLevel && <Badge variant="outline">{job.positionLevel}</Badge>}
+        </div>
+        <p className="pt-2 text-sm text-foreground/80 line-clamp-2">{job.description}</p>
       </CardContent>
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex justify-between items-center">
         <span className="text-xs text-muted-foreground">
           Posted {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(job.postedAt as any))}
         </span>
@@ -117,7 +128,8 @@ function JobsPageContent() {
          job.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
         job.location.toLowerCase().includes(location.toLowerCase()) &&
         (industry === 'all' || job.industry === industry) &&
-        (job.salaryMax >= minSal && job.salaryMin <= maxSal)
+        (job.salaryMax ? job.salaryMax >= minSal : true) &&
+        (job.salaryMin ? job.salaryMin <= maxSal : true)
       );
     });
   }, [jobs, searchTerm, location, industry, minSalary, maxSalary]);

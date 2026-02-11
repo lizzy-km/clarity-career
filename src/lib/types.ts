@@ -49,12 +49,17 @@ export interface Job {
   company: string;
   companyId: string;
   location: string;
-  salaryMin: number;
-  salaryMax: number;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  isSalaryNegotiable?: boolean;
   industry: string;
   description: string;
   postedAt: Date;
   companyLogoUrl: string;
+  positionLevel?: string;
+  experienceRequired?: string;
+  employmentType?: string;
+  workMode?: string;
 }
 
 export interface CompanyReview {

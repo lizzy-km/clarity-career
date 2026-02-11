@@ -5,7 +5,7 @@ import { useDoc, useUser, useFirestore } from '@/firebase';
 import type { Job, Company } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
-import { MapPin, Briefcase, DollarSign, Heart } from 'lucide-react';
+import { MapPin, Briefcase, DollarSign, Heart, Clock, User, Award, Case, Laptop, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ApplicationForm, ApplicationFormData } from '@/components/forms/application-form';
 import { useToast } from '@/hooks/use-toast';
 import { submitApplication, toggleSaveJob } from '@/firebase/firestore/writes';
+import { Badge } from '@/components/ui/badge';
 
 export default function JobDetailPage() {
     const params = useParams();
@@ -73,12 +74,20 @@ export default function JobDetailPage() {
             </div>
         );
     }
-// 
-    // console.log(user)
 
     if (!job) {
         return <div className="container text-center py-16">Job not found.</div>;
     }
+
+    const jobDetails = [
+        { icon: <MapPin className="h-4 w-4" />, label: 'Location', value: job.location },
+        { icon: <Briefcase className="h-4 w-4" />, label: 'Industry', value: job.industry },
+        { icon: <Award className="h-4 w-4" />, label: 'Position Level', value: job.positionLevel },
+        { icon: <User className="h-4 w-4" />, label: 'Experience', value: job.experienceRequired },
+        { icon: <Clock className="h-4 w-4" />, label: 'Employment Type', value: job.employmentType },
+        { icon: <Laptop className="h-4 w-4" />, label: 'Work Mode', value: job.workMode },
+    ];
+
 
     return (
         <div className="container mx-auto py-8">
@@ -90,10 +99,15 @@ export default function JobDetailPage() {
                         <p className="text-xl text-muted-foreground">{job.company}</p>
                     </div>
                 </div>
-                 <div className="flex items-center gap-4 text-muted-foreground mt-4">
-                    <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> <span>{job.location}</span></div>
-                    <div className="flex items-center gap-2"><Briefcase className="h-4 w-4" /> <span>{job.industry}</span></div>
-                    <div className="flex items-center gap-2"><DollarSign className="h-4 w-4" /> <span>{`$${(job.salaryMin / 1000)}k - $${(job.salaryMax / 1000)}k`}</span></div>
+                 <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-muted-foreground mt-4">
+                    {job.isSalaryNegotiable ? (
+                        <div className="flex items-center gap-2"><DollarSign className="h-4 w-4" /> <span>Negotiable Salary</span></div>
+                    ) : (
+                        <div className="flex items-center gap-2"><DollarSign className="h-4 w-4" /> <span>{`$${(job.salaryMin! / 1000)}k - $${(job.salaryMax! / 1000)}k`}</span></div>
+                    )}
+                    {job.workMode && <Badge variant="secondary">{job.workMode}</Badge>}
+                    {job.employmentType && <Badge variant="secondary">{job.employmentType}</Badge>}
+                    {job.experienceRequired && <Badge variant="secondary">{job.experienceRequired}</Badge>}
                 </div>
             </header>
 
@@ -105,7 +119,7 @@ export default function JobDetailPage() {
                     </div>
                 </div>
 
-                <aside>
+                <aside className="space-y-6">
                     <Card>
                         <CardHeader>
                             <CardTitle>Apply for this position</CardTitle>
@@ -123,7 +137,29 @@ export default function JobDetailPage() {
                             {user && company && user.uid === company.ownerId && (
                                 <p className="text-sm text-muted-foreground">You cannot apply to a job you posted.</p>
                             )}
-                            {!user && <p className="text-sm text-muted-foreground">Log in to apply for this job.</p>}
+                             {!user && (
+                                <>
+                                    <Button size="lg" onClick={handleOpenApplyDialog}>Apply Now</Button>
+                                    <Button size="lg" variant="outline" onClick={handleSaveToggle}>
+                                        <Heart className={`mr-2 h-4 w-4 ${isSaved ? "fill-red-500 text-red-500" : ""}`} />
+                                        {isSaved ? 'Saved' : 'Save Job'}
+                                    </Button>
+                                </>
+                            )}
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Job Details</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            {jobDetails.map(detail => detail.value && (
+                                <div key={detail.label} className="flex items-center text-sm">
+                                    <div className="w-6 text-muted-foreground">{detail.icon}</div>
+                                    <span className="font-medium">{detail.label}:</span>
+                                    <span className="ml-2 text-muted-foreground">{detail.value}</span>
+                                </div>
+                            ))}
                         </CardContent>
                     </Card>
                 </aside>

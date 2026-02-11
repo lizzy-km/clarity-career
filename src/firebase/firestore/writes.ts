@@ -167,18 +167,25 @@ export async function addJob(db: Firestore, user: UserProfile, data: JobFormData
 
 
     const jobRef = collection(db, 'jobs');
-    addDoc(jobRef, {
+    const jobDoc = {
         title: data.title,
         companyId: data.companyId,
         location: data.location,
-        salaryMin: Number(data.salaryMin),
-        salaryMax: Number(data.salaryMax),
         industry: data.industry,
         description: data.description,
         company: companyData?.name,
         companyLogoUrl: companyData?.logoUrl,
         postedAt: serverTimestamp(),
-    }).catch(async (serverError) => {
+        positionLevel: data.positionLevel,
+        experienceRequired: data.experienceRequired,
+        employmentType: data.employmentType,
+        workMode: data.workMode,
+        isSalaryNegotiable: data.isSalaryNegotiable,
+        salaryMin: data.isSalaryNegotiable ? null : Number(data.salaryMin),
+        salaryMax: data.isSalaryNegotiable ? null : Number(data.salaryMax),
+    };
+
+    addDoc(jobRef, jobDoc).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: 'jobs',
             operation: 'create',
