@@ -63,5 +63,8 @@ export function useDoc<T>(path: string, id?: string) {
     return () => unsubscribe();
   }, [memoizedRef]);
 
+  if( !id){
+    return { data: null, loading: false, error: null };
+  }
   return { data, loading, error };
 }
