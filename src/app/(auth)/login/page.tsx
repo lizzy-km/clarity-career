@@ -88,7 +88,7 @@ export default function LoginPage() {
     if (isMobile === null || !auth) return;
     setFormLoading(true);
     const googleProvider = new GoogleAuthProvider();
-    if (!isMobile) {
+    if (isMobile) {
         await signInWithRedirect(auth, googleProvider)
     } else {
         try {
