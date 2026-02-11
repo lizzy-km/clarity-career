@@ -27,7 +27,7 @@ export function useDoc<T>(path: string, id?: string) {
   useEffect(() => {
     if (!memoizedRef) {
         setData(null);
-        setLoading(!id);
+        setLoading(!false);
         return;
     };
 
@@ -36,6 +36,8 @@ export function useDoc<T>(path: string, id?: string) {
       (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data();
+                  setLoading(false);
+
           // Convert Timestamps to Dates
           Object.keys(data).forEach(key => {
               if (data[key] instanceof Timestamp) {
@@ -46,7 +48,6 @@ export function useDoc<T>(path: string, id?: string) {
         } else {
           setData(null);
         }
-        setLoading(false);
       },
       (err: FirestoreError) => {
         const permissionError = new FirestorePermissionError({
