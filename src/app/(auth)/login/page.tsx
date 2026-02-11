@@ -80,6 +80,7 @@ export default function LoginPage() {
   };
   
   const handleGoogleSignIn = async () => {
+    if (isMobile === null) return;
     setFormLoading(true);
     const googleProvider = new GoogleAuthProvider();
     if (isMobile) {
@@ -97,7 +98,7 @@ export default function LoginPage() {
     }
   };
 
-  const pageLoading = userLoading || isCheckingRedirect;
+  const pageLoading = userLoading || isCheckingRedirect || isMobile === null;
 
 
 
@@ -143,7 +144,7 @@ export default function LoginPage() {
       </CardHeader>
       <form onSubmit={handleLogin}>
         <CardContent className="grid gap-4">
-          <Button variant="outline" type="button" onClick={handleGoogleSignIn} disabled={formLoading}>
+          <Button variant="outline" type="button" onClick={handleGoogleSignIn} disabled={formLoading || isMobile === null}>
             <Chrome className="mr-2 h-4 w-4" />
             Sign in with Google
           </Button>
