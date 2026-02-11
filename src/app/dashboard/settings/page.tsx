@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import {
@@ -39,37 +38,6 @@ export default function SettingsPage() {
     const { toast } = useToast();
     const [isDeleteAlertOpen, setDeleteAlertOpen] = useState(false);
     const [passwordForDelete, setPasswordForDelete] = useState('');
-    const [theme, setTheme] = useState('system');
-
-    useEffect(() => {
-        const storedTheme = localStorage.getItem('theme') || 'system';
-        setTheme(storedTheme);
-        applyTheme(storedTheme);
-
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = () => {
-            if (localStorage.getItem('theme') === 'system') {
-                applyTheme('system');
-            }
-        };
-        mediaQuery.addEventListener('change', handleChange);
-        return () => mediaQuery.removeEventListener('change', handleChange);
-    }, []);
-    
-    const applyTheme = (selectedTheme: string) => {
-        if (selectedTheme === 'system') {
-            const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.classList.toggle('dark', systemIsDark);
-        } else {
-            document.documentElement.classList.toggle('dark', selectedTheme === 'dark');
-        }
-    }
-
-    const handleThemeChange = (value: string) => {
-        setTheme(value);
-        localStorage.setItem('theme', value);
-        applyTheme(value);
-    }
     
     const passwordForm = useForm<z.infer<typeof passwordFormSchema>>({
         resolver: zodResolver(passwordFormSchema),
@@ -125,29 +93,6 @@ export default function SettingsPage() {
                 <h1 className="text-3xl font-bold font-headline">Settings</h1>
                 <p className="text-muted-foreground">Manage your account settings and preferences.</p>
             </div>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Appearance</CardTitle>
-                    <CardDescription>Customize the look and feel of the application.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                     <RadioGroup value={theme} onValueChange={handleThemeChange} className="flex flex-col space-y-1">
-                        <div className="flex items-center space-x-3">
-                            <RadioGroupItem value="light" id="theme-light" />
-                            <Label htmlFor="theme-light" className="font-normal">Light</Label>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                            <RadioGroupItem value="dark" id="theme-dark" />
-                            <Label htmlFor="theme-dark" className="font-normal">Dark</Label>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                            <RadioGroupItem value="system" id="theme-system" />
-                            <Label htmlFor="theme-system" className="font-normal">System</Label>
-                        </div>
-                    </RadioGroup>
-                </CardContent>
-            </Card>
 
             {isPasswordProvider && (
                  <Card>
