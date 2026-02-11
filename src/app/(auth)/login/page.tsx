@@ -123,9 +123,9 @@ export default function LoginPage() {
                     <span className="w-full border-t" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
+                    {/* <span className="bg-background px-2 text-muted-foreground">
                         Or continue with
-                    </span>
+                    </span> */}
                     </div>
                 </div>
                  <Skeleton className="h-8 w-full" />
@@ -149,11 +149,11 @@ export default function LoginPage() {
       </CardHeader>
       <form onSubmit={handleLogin}>
         <CardContent className="grid gap-4">
-          <Button variant="outline" type="button" onClick={handleGoogleSignIn} disabled={formLoading || isMobile === null}>
+          {/* <Button variant="outline" type="button" onClick={handleGoogleSignIn} disabled={formLoading || isMobile === null}>
             <Chrome className="mr-2 h-4 w-4" />
             Sign in with Google
-          </Button>
-          <div className="relative">
+          </Button> */}
+          {/* <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
@@ -162,7 +162,7 @@ export default function LoginPage() {
                 Or continue with
               </span>
             </div>
-          </div>
+          </div> */}
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" placeholder="m@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={formLoading} />
