@@ -48,7 +48,9 @@ export default function LoginPage() {
   useEffect(() => {
     getRedirectResult(auth)
       .then(result => {
+        console.log('Redirect result:', result);
         if (result) {
+          
           handleOAuthSuccess(result.user);
         }
       })
@@ -82,8 +84,8 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setFormLoading(true);
     const googleProvider = new GoogleAuthProvider();
-    if (isMobile) {
-        await signInWithRedirect(auth, googleProvider);
+    if (!isMobile) {
+        await signInWithRedirect(auth, googleProvider)
     } else {
         try {
           const result = await signInWithPopup(auth, googleProvider);
