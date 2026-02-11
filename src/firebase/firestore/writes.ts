@@ -1,5 +1,5 @@
 
-import { collection, addDoc, serverTimestamp, doc, setDoc, updateDoc, Firestore, getDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, setDoc, updateDoc, Firestore, getDoc, arrayUnion, arrayRemove, runTransaction, increment } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import type { Job, UserProfile } from '@/lib/types';
@@ -87,28 +87,34 @@ export async function addSalary(db: Firestore, user: UserProfile | null, data: S
 }
 
 export function submitApplication(db: Firestore, user: UserProfile, job: Job, applicationData: ApplicationFormData) {
-    const applicationRef = collection(db, 'applications');
-    addDoc(applicationRef, {
-        // Job info
-        jobId: job.id,
-        companyId: job.companyId,
-        jobTitle: job.title,
-        company: job.company,
-        companyLogoUrl: job.companyLogoUrl,
-        // Applicant Info
-        applicantId: user.uid,
-        applicantName: applicationData.name,
-        applicantEmail: applicationData.email,
-        applicantPhone: applicationData.phone,
-        applicantPortfolio: applicationData.portfolioUrl,
-        coverLetter: applicationData.coverLetter,
-        resumeUrl: applicationData.resumeUrl,
-        // Status
-        status: 'Applied',
-        submittedAt: serverTimestamp(),
+    const jobRef = doc(db, 'jobs', job.id);
+    const newApplicationRef = doc(collection(db, 'applications'));
+
+    runTransaction(db, async (transaction) => {
+        transaction.update(jobRef, { applicantsCount: increment(1) });
+
+        transaction.set(newApplicationRef, {
+            // Job info
+            jobId: job.id,
+            companyId: job.companyId,
+            jobTitle: job.title,
+            company: job.company,
+            companyLogoUrl: job.companyLogoUrl,
+            // Applicant Info
+            applicantId: user.uid,
+            applicantName: applicationData.name,
+            applicantEmail: applicationData.email,
+            applicantPhone: applicationData.phone,
+            applicantPortfolio: applicationData.portfolioUrl,
+            coverLetter: applicationData.coverLetter,
+            resumeUrl: applicationData.resumeUrl,
+            // Status
+            status: 'Applied',
+            submittedAt: serverTimestamp(),
+        });
     }).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
-            path: applicationRef.path,
+            path: newApplicationRef.path,
             operation: 'create',
             requestResourceData: applicationData,
         });
@@ -185,6 +191,7 @@ export async function addJob(db: Firestore, user: UserProfile, data: JobFormData
         salaryMin: data.isSalaryNegotiable ? null : Number(data.salaryMin),
         salaryMax: data.isSalaryNegotiable ? null : Number(data.salaryMax),
         currency: data.currency,
+        applicantsCount: 0,
     };
 
     addDoc(jobRef, jobDoc).catch(async (serverError) => {

@@ -62,6 +62,7 @@ export interface Job {
   employmentType?: string;
   workMode?: string;
   benefits?: string;
+  applicantsCount?: number;
 }
 
 export interface CompanyReview {

@@ -37,7 +37,8 @@
         "experienceRequired": { "type": "string" },
         "employmentType": { "type": "string" },
         "workMode": { "type": "string" },
-        "benefits": { "type": "string", "description": "List of benefits for the job." }
+        "benefits": { "type": "string", "description": "List of benefits for the job." },
+        "applicantsCount": { "type": "number", "description": "The number of applicants for this job." }
       },
       "required": ["title", "companyId", "company", "location", "description", "postedAt"]
     },
