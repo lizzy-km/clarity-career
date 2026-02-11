@@ -41,7 +41,7 @@ function JobCard({ job, user, onSave, isSaved }: { job: Job, user: UserProfile |
             {job.isSalaryNegotiable ? (
                 <span>Negotiable</span>
             ) : (
-                <span>{`$${(job.salaryMin! / 1000)}k - $${(job.salaryMax! / 1000)}k`}</span>
+                <span>{`MMK${(job.salaryMin! / 1000)}k - MMK${(job.salaryMax! / 1000)}k`}</span>
             )}
         </div>
          <div className="flex flex-wrap gap-2 pt-2">

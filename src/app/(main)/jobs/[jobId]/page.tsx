@@ -103,7 +103,7 @@ export default function JobDetailPage() {
                     {job.isSalaryNegotiable ? (
                         <div className="flex items-center gap-2"><DollarSign className="h-4 w-4" /> <span>Negotiable Salary</span></div>
                     ) : (
-                        <div className="flex items-center gap-2"><DollarSign className="h-4 w-4" /> <span>{`$${(job.salaryMin! / 1000)}k - $${(job.salaryMax! / 1000)}k`}</span></div>
+                        <div className="flex items-center gap-2"><DollarSign className="h-4 w-4" /> <span>{`MMK${(job.salaryMin! / 1000)}k - MMK${(job.salaryMax! / 1000)}k`}</span></div>
                     )}
                     {job.workMode && <Badge variant="secondary">{job.workMode}</Badge>}
                     {job.employmentType && <Badge variant="secondary">{job.employmentType}</Badge>}
