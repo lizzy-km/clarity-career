@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -90,7 +91,7 @@ export default function HomePage() {
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="relative bg-primary text-center text-primary-foreground">
-          <div className="container px-4 pt-32 pb-20 md:pt-40 md:pb-24 animate-fade-in-up">
+          <div className="container mx-auto px-4 pt-32 pb-20 md:pt-40 md:pb-24 animate-fade-in-up">
             <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight">
               Your Career, Clarified.
             </h1>
@@ -117,7 +118,7 @@ export default function HomePage() {
 
         {/* Features Section */}
         <section id="features" className="py-16 md:py-24 bg-background">
-          <div className="container">
+          <div className="container mx-auto">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Everything you need for your job search</h2>
               <p className="mt-4 text-muted-foreground text-lg">
@@ -140,7 +141,7 @@ export default function HomePage() {
 
         {/* How it works */}
         <section className="py-16 md:py-24 bg-secondary">
-          <div className="container">
+          <div className="container mx-auto">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Get Started in 3 Easy Steps</h2>
             </div>
@@ -167,7 +168,7 @@ export default function HomePage() {
         
         {/* CTA Section */}
         <section className="py-20 md:py-32 bg-background">
-          <div className="container text-center">
+          <div className="container mx-auto text-center">
              <h2 className="text-3xl md:text-5xl font-bold font-headline max-w-2xl mx-auto">Ready to find a job you love?</h2>
              <p className="mt-4 text-muted-foreground text-lg max-w-xl mx-auto">Create a free account to get personalized job recommendations, save your favorite listings, and get salary insights.</p>
              <Button size="lg" asChild className="mt-8 text-base h-12 px-8">
@@ -178,7 +179,7 @@ export default function HomePage() {
       </main>
 
       <footer className="bg-primary text-primary-foreground">
-        <div className="container py-8 flex flex-col md:flex-row justify-between items-center text-sm">
+        <div className="container mx-auto py-8 flex flex-col md:flex-row justify-between items-center text-sm">
           <p className="text-primary-foreground/80">&copy; {new Date().getFullYear()} ClarityCareer. All rights reserved.</p>
           <div className="flex gap-4 mt-4 md:mt-0">
             <Link href="#" className="text-primary-foreground/80 hover:text-white">Privacy Policy</Link>
