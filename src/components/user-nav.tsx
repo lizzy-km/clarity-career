@@ -41,11 +41,11 @@ export function UserNav() {
 
   if (!user) {
     return (
-      <div className="flex items-center gap-2 px-4">
-        <Button variant="ghost" asChild>
-          <Link href="/login">Log in</Link>
+      <div className="flex items-center gap-2   ">
+        <Button variant="login" asChild>
+          <Link  href="/login">Log in</Link>
         </Button>
-        <Button asChild>
+        <Button  asChild>
           <Link href="/signup">Sign Up</Link>
         </Button>
       </div>

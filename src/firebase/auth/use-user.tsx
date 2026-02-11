@@ -10,19 +10,18 @@ export function useUser() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   
-  const { data: userProfile, loading: profileLoading } = useDoc<UserProfile>('users', user?.uid);
+  const { data: userProfile, loading: profileLoading } =  useDoc<UserProfile>('users', user?.uid)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
-    });
+    })
 
     return () => unsubscribe();
   }, [auth]);
 
 
-    // console.log('bbbbb')
 
 
   const finishedLoading = !loading && !profileLoading;

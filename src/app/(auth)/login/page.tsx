@@ -99,6 +99,8 @@ export default function LoginPage() {
 
   const pageLoading = userLoading || isCheckingRedirect;
 
+
+
   if (pageLoading) {
     return (
         <Card className="w-full max-w-sm">
