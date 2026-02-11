@@ -61,6 +61,7 @@ export interface Job {
   experienceRequired?: string;
   employmentType?: string;
   workMode?: string;
+  benefits?: string;
 }
 
 export interface CompanyReview {

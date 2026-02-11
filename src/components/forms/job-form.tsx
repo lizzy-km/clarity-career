@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { useCollection } from '@/firebase';
 import type { Company } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,6 +24,7 @@ const jobFormSchema = z.object({
   currency: z.enum(['MMK', 'USD']).default('MMK'),
   industry: z.string().min(2, "Industry is required."),
   description: z.string().min(20, "Description must be at least 20 characters."),
+  benefits: z.string().optional(),
   positionLevel: z.string().min(1, "Position level is required"),
   experienceRequired: z.string().min(1, "Experience level is required"),
   employmentType: z.string().min(1, "Employment type is required"),
@@ -71,6 +72,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
         location: "",
         industry: "",
         description: "",
+        benefits: "",
         isSalaryNegotiable: false,
         currency: "MMK",
     }
@@ -230,6 +232,22 @@ export function JobForm({ onSubmit }: JobFormProps) {
               <FormControl>
                 <Textarea placeholder="Describe the role, responsibilities, and requirements." {...field} rows={6} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+         <FormField
+          control={form.control}
+          name="benefits"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Benefits</FormLabel>
+              <FormControl>
+                <Textarea placeholder="List the benefits offered, e.g., Health Insurance, Paid Time Off..." {...field} rows={4} />
+              </FormControl>
+               <FormDescription>
+                List one benefit per line for best readability.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

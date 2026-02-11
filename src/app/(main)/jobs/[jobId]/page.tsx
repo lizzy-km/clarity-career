@@ -5,7 +5,7 @@ import { useDoc, useUser, useFirestore } from '@/firebase';
 import type { Job, Company } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
-import { MapPin, Briefcase, DollarSign, Heart, Clock, User, Award, Case, Laptop, Users } from 'lucide-react';
+import { MapPin, Briefcase, DollarSign, Heart, Clock, User, Award, Laptop, ListChecks, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
@@ -118,6 +118,22 @@ export default function JobDetailPage() {
                         <h2 className="text-2xl font-bold mb-4">Job Description</h2>
                         <p className="text-foreground/80 whitespace-pre-wrap">{job.description}</p>
                     </div>
+                     {job.benefits && (
+                        <div>
+                            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                                <ListChecks className="h-6 w-6" />
+                                Benefits
+                            </h2>
+                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-foreground/80">
+                                {job.benefits.split('\n').map((benefit, i) => benefit.trim() && (
+                                    <li key={i} className="flex items-center gap-2">
+                                        <Check className="h-4 w-4 text-green-500" />
+                                        <span>{benefit.trim()}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
 
                 <aside className="space-y-6">

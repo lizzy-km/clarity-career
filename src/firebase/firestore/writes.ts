@@ -173,6 +173,7 @@ export async function addJob(db: Firestore, user: UserProfile, data: JobFormData
         location: data.location,
         industry: data.industry,
         description: data.description,
+        benefits: data.benefits,
         company: companyData?.name,
         companyLogoUrl: companyData?.logoUrl,
         postedAt: serverTimestamp(),
