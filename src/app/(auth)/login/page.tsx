@@ -46,9 +46,12 @@ export default function LoginPage() {
   }, [firestore, router, toast]);
 
   useEffect(() => {
+    if (!auth) return;
+    
     getRedirectResult(auth)
       .then(result => {
         if (result) {
+          setFormLoading(true);
           handleOAuthSuccess(result.user);
         }
       })
@@ -68,6 +71,7 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) return;
     setFormLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
@@ -80,7 +84,7 @@ export default function LoginPage() {
   };
   
   const handleGoogleSignIn = async () => {
-    if (isMobile === null) return;
+    if (isMobile === null || !auth) return;
     setFormLoading(true);
     const googleProvider = new GoogleAuthProvider();
     if (isMobile) {
@@ -98,7 +102,7 @@ export default function LoginPage() {
     }
   };
 
-  const pageLoading = userLoading || isCheckingRedirect || isMobile === null;
+  const pageLoading = userLoading || isCheckingRedirect || isMobile === null || formLoading;
 
 
 
