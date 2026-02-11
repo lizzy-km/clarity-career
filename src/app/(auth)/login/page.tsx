@@ -1,67 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signInWithRedirect, getRedirectResult, User } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { useAuth, useFirestore, useUser } from '@/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useAuth, useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Chrome } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const auth = useAuth();
-  const firestore = useFirestore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formLoading, setFormLoading] = useState(false);
-  const [isCheckingRedirect, setIsCheckingRedirect] = useState(true);
   const { user, loading: userLoading } = useUser();
-  const isMobile = useIsMobile();
-
-  const handleOAuthSuccess = useCallback(async (oauthUser: User) => {
-    const userRef = doc(firestore, 'users', oauthUser.uid);
-    const userSnap = await getDoc(userRef);
-
-    if (!userSnap.exists()) {
-      await setDoc(userRef, {
-        uid: oauthUser.uid,
-        displayName: oauthUser.displayName,
-        email: oauthUser.email,
-        photoURL: oauthUser.photoURL,
-        role: 'employee',
-      });
-    }
-
-    toast({ title: "Success", description: "Logged in successfully with Google." });
-    router.push('/dashboard');
-  }, [firestore, router, toast]);
-
-  useEffect(() => {
-    if (!auth) return;
-    
-    getRedirectResult(auth)
-      .then(result => {
-        if (result) {
-          setFormLoading(true);
-          handleOAuthSuccess(result.user);
-        }
-      })
-      .catch(error => {
-        toast({ variant: 'destructive', title: 'Google Sign-In Failed', description: error.message });
-      })
-      .finally(() => {
-        setIsCheckingRedirect(false);
-      });
-  }, [auth, handleOAuthSuccess, toast]);
 
   useEffect(() => {
     if (!userLoading && user) {
@@ -82,31 +40,8 @@ export default function LoginPage() {
       setFormLoading(false);
     }
   };
-  
-  const handleGoogleSignIn = async () => {
-    if (isMobile === null || !auth) return;
-    setFormLoading(true);
-    const googleProvider = new GoogleAuthProvider();
-    if (isMobile) {
-        await signInWithRedirect(auth, googleProvider);
-    } else {
-        try {
-          const result = await signInWithPopup(auth, googleProvider);
-          await handleOAuthSuccess(result.user);
-        } catch (error: any) {
-          if (error.code !== 'auth/popup-closed-by-user') {
-            toast({ variant: "destructive", title: "Google Sign-In Failed", description: error.message });
-          }
-          setFormLoading(false);
-        }
-    }
-  };
 
-  const pageLoading = userLoading || isCheckingRedirect || isMobile === null || formLoading;
-
-
-
-  if (pageLoading) {
+  if (userLoading) {
     return (
         <Card className="w-full max-w-sm">
             <CardHeader>
@@ -115,21 +50,15 @@ export default function LoginPage() {
                 We're checking your session...
                 </CardDescription>
             </CardHeader>
-             <CardContent className="space-y-4">
-                <Skeleton className="h-10 w-full" />
-                <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                        Or continue with
-                    </span>
-                    </div>
+             <CardContent className="grid gap-4">
+                <div className="grid gap-2">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-10 w-full" />
                 </div>
-                 <Skeleton className="h-8 w-full" />
-                 <Skeleton className="h-8 w-full" />
-
+                <div className="grid gap-2">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-10 w-full" />
+                </div>
              </CardContent>
              <CardFooter>
                  <Skeleton className="h-10 w-full" />
@@ -148,20 +77,6 @@ export default function LoginPage() {
       </CardHeader>
       <form onSubmit={handleLogin}>
         <CardContent className="grid gap-4">
-          <Button variant="outline" type="button" onClick={handleGoogleSignIn} disabled={formLoading || isMobile === null}>
-            <Chrome className="mr-2 h-4 w-4" />
-            Sign in with Google
-          </Button>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div>
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" placeholder="m@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={formLoading} />
