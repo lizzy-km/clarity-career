@@ -39,18 +39,18 @@ export default function DashboardLayout({
 
   if (loading || !user) {
     return (
-        <div className="flex items-center justify-center h-screen">
-            <div className="flex flex-col items-center gap-4">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="space-y-2">
-                    <Skeleton className="h-4 w-[250px]" />
-                    <Skeleton className="h-4 w-[200px]" />
-                </div>
-            </div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[250px]" />
+            <Skeleton className="h-4 w-[200px]" />
+          </div>
         </div>
+      </div>
     );
   }
-  
+
   const employeeNavItems = [
     { href: '/dashboard/applications', label: 'Applications', icon: <Briefcase /> },
     { href: '/dashboard/saved-jobs', label: 'Saved Jobs', icon: <Heart /> },
@@ -59,6 +59,8 @@ export default function DashboardLayout({
   ];
 
   const employerNavItems = [
+    { href: '/dashboard/applications', label: 'Applications', icon: <Briefcase /> },
+
     { href: '/dashboard/posted-jobs', label: 'Posted Jobs', icon: <FileText /> },
     { href: '/dashboard/companies', label: 'My Companies', icon: <Building /> },
     { href: '/dashboard/profile', label: 'Profile', icon: <User /> },
@@ -71,7 +73,7 @@ export default function DashboardLayout({
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader>
-            <Logo />
+          <Logo />
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
@@ -90,8 +92,8 @@ export default function DashboardLayout({
       </Sidebar>
       <SidebarInset>
         <header className="flex items-center justify-between p-4 border-b">
-            <SidebarTrigger />
-            <h1 className="text-2xl font-bold">{user.role === 'employer' ? "Employer Dashboard" : "My Dashboard"}</h1>
+          <SidebarTrigger />
+          <h1 className="text-2xl font-bold">{user.role === 'employer' ? "Employer Dashboard" : "My Dashboard"}</h1>
         </header>
         <div className="p-8">
           {children}
