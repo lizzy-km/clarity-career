@@ -5,12 +5,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Briefcase, Building2, DollarSign, MessageSquare, Search } from 'lucide-react';
+import { ArrowRight, Briefcase, Building2, DollarSign, MessageSquare, Search, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/logo';
 import { UserNav } from '@/components/user-nav';
 import { cn } from '@/lib/utils';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 // Header that becomes opaque on scroll
 function HomeHeader() {
@@ -24,6 +29,14 @@ function HomeHeader() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const navLinks = [
+    { href: '/jobs', label: 'Jobs' },
+    { href: '/companies', label: 'Companies' },
+    { href: '/reviews', label: 'Company Reviews' },
+    { href: '/salaries', label: 'Salaries' },
+    { href: '/interviews', label: 'Interviews' },
+  ];
+
   return (
     <header className={cn(
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
@@ -33,12 +46,41 @@ function HomeHeader() {
         <Logo className={cn(scrolled ? "text-primary" : "text-white drop-shadow-md")} />
         <div className="flex items-center gap-4">
             <nav className="hidden md:flex items-center gap-6">
-                <Link href="/jobs" className={cn("text-sm font-medium transition-colors", scrolled ? "text-muted-foreground hover:text-primary" : "text-primary-foreground/80 hover:text-white")}>Jobs</Link>
-                <Link href="/companies" className={cn("text-sm font-medium transition-colors", scrolled ? "text-muted-foreground hover:text-primary" : "text-primary-foreground/80 hover:text-white")}>Companies</Link>
-                <Link href="/reviews" className={cn("text-sm font-medium transition-colors", scrolled ? "text-muted-foreground hover:text-primary" : "text-primary-foreground/80 hover:text-white")}>Reviews</Link>
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn("text-sm font-medium transition-colors", scrolled ? "text-muted-foreground hover:text-primary" : "text-primary-foreground/80 hover:text-white")}
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
             <div className="hidden md:block">
               <UserNav />
+            </div>
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className={cn("hover:bg-transparent focus:bg-transparent focus-visible:bg-transparent", scrolled ? "text-primary hover:text-primary" : "text-primary-foreground hover:text-white")}>
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">Toggle navigation menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right">
+                  <div className="flex flex-col gap-6 pt-12">
+                    <Logo />
+                    <nav className="flex flex-col gap-4 text-lg font-medium">
+                      {navLinks.map((link) => (
+                        <Link key={link.href} href={link.href} className="text-muted-foreground hover:text-primary">{link.label}</Link>
+                      ))}
+                    </nav>
+                    <div className="mt-auto">
+                      <UserNav />
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
         </div>
       </div>
@@ -190,3 +232,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
