@@ -4,7 +4,7 @@
 import { useParams } from 'next/navigation';
 import { useDoc, useCollection, useFirestore, useUser } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import type { Company, Job, CompanyReview, SalaryData, UserProfile } from '@/lib/types';
+import type { Company, Job, CompanyReview, SalaryData, UserProfile, Application } from '@/lib/types';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo } from 'react';
@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/utils';
 
 
-function JobListItem({ job, user, onSave, isSaved }: { job: Job, user: UserProfile | null, onSave: (jobId: string) => void, isSaved: boolean }) {
+function JobListItem({ job, user, onSave, isSaved, applicantCount, isOwner }: { job: Job, user: UserProfile | null, onSave: (jobId: string) => void, isSaved: boolean, applicantCount: number, isOwner: boolean }) {
   return (
     <Card>
       <CardHeader>
@@ -29,7 +29,13 @@ function JobListItem({ job, user, onSave, isSaved }: { job: Job, user: UserProfi
                 <CardTitle className="text-lg hover:underline"><Link href={`/jobs/${job.id}`}>{job.title}</Link></CardTitle>
                 <CardDescription>{job.location}</CardDescription>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+                {isOwner && (
+                    <div className="flex items-center gap-1 text-sm font-medium text-muted-foreground">
+                        <Users className="h-4 w-4" />
+                        <span>{applicantCount} Applicant{applicantCount !== 1 ? 's' : ''}</span>
+                    </div>
+                )}
                 <span className="text-sm text-muted-foreground">
                      {job.isSalaryNegotiable ? 'Negotiable' : `${formatCurrency(job.salaryMin, job.currency)} - ${formatCurrency(job.salaryMax, job.currency)}`}
                 </span>
@@ -105,7 +111,17 @@ export default function CompanyDetailPage() {
     const salariesQuery = useMemo(() => (companyId ? query(collection(firestore, 'salaries'), where('companyId', '==', companyId)) : null), [firestore, companyId]);
     const { data: salaries, loading: salariesLoading } = useCollection<SalaryData>('salaries', salariesQuery);
 
-    const loading = companyLoading || jobsLoading || reviewsLoading || salariesLoading;
+    const applicationsQuery = useMemo(() => (companyId ? query(collection(firestore, 'applications'), where('companyId', '==', companyId)) : null), [firestore, companyId]);
+    const { data: applications, loading: applicationsLoading } = useCollection<Application>('applications', applicationsQuery);
+
+    const loading = companyLoading || jobsLoading || reviewsLoading || salariesLoading || applicationsLoading;
+
+    const getApplicantCount = (jobId: string) => {
+        if (!applications) return 0;
+        return applications.filter(app => app.jobId === jobId).length;
+    };
+
+    const isOwner = !!(user?.role === 'employer' && company?.ownerId === user?.uid);
 
 
 
@@ -182,6 +198,8 @@ export default function CompanyDetailPage() {
                         user={user}
                         onSave={handleSaveToggle}
                         isSaved={user?.savedJobs?.includes(job.id) || false} 
+                        applicantCount={getApplicantCount(job.id)}
+                        isOwner={isOwner}
                       />
                   )) : <p className="text-muted-foreground text-center py-8">No open positions at the moment.</p>}
               </div>
