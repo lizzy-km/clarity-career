@@ -20,6 +20,44 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [formLoading, setFormLoading] = useState(false);
   const { user, loading: userLoading } = useUser();
+  const isMobile = useIsMobile();
+
+  const handleOAuthSuccess = useCallback(async (oauthUser: User) => {
+    const userRef = doc(firestore, 'users', oauthUser.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        uid: oauthUser.uid,
+        displayName: oauthUser.displayName,
+        email: oauthUser.email,
+        photoURL: oauthUser.photoURL,
+        role: 'employee',
+      });
+    }
+
+    toast({ title: "Success", description: "Logged in successfully with Google." });
+    router.push('/dashboard');
+  }, [firestore, router, toast]);
+
+  useEffect(() => {
+    if (!auth) return;
+    
+    getRedirectResult(auth)
+      .then(result => {
+        console.log('Redirect result:', result);
+        if (result) {
+          setFormLoading(true);
+          handleOAuthSuccess(result.user);
+        }
+      })
+      .catch(error => {
+        toast({ variant: 'destructive', title: 'Google Sign-In Failed', description: error.message });
+      })
+      .finally(() => {
+        setIsCheckingRedirect(false);
+      });
+  }, [auth, handleOAuthSuccess, toast]);
 
   useEffect(() => {
     if (!userLoading && user) {
@@ -40,8 +78,31 @@ export default function LoginPage() {
       setFormLoading(false);
     }
   };
+  
+  const handleGoogleSignIn = async () => {
+    if (isMobile === null || !auth) return;
+    setFormLoading(true);
+    const googleProvider = new GoogleAuthProvider();
+    if (isMobile) {
+        await signInWithRedirect(auth, googleProvider)
+    } else {
+        try {
+          const result = await signInWithPopup(auth, googleProvider);
+          await handleOAuthSuccess(result.user);
+        } catch (error: any) {
+          if (error.code !== 'auth/popup-closed-by-user') {
+            toast({ variant: "destructive", title: "Google Sign-In Failed", description: error.message });
+          }
+          setFormLoading(false);
+        }
+    }
+  };
 
-  if (userLoading) {
+  const pageLoading = userLoading || isCheckingRedirect || isMobile === null || formLoading;
+
+
+
+  if (pageLoading) {
     return (
         <Card className="w-full max-w-sm">
             <CardHeader>
