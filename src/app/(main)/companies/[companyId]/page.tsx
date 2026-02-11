@@ -111,20 +111,20 @@ export default function CompanyDetailPage() {
     const salariesQuery = useMemo(() => (companyId ? query(collection(firestore, 'salaries'), where('companyId', '==', companyId)) : null), [firestore, companyId]);
     const { data: salaries, loading: salariesLoading } = useCollection<SalaryData>('salaries', salariesQuery);
 
-    const applicationsQuery = useMemo(() => (companyId ? query(collection(firestore, 'applications'), where('companyId', '==', companyId)) : null), [firestore, companyId]);
+    const isOwner = useMemo(() => !!(user?.role === 'employer' && company?.ownerId === user?.uid), [user, company]);
+
+    const applicationsQuery = useMemo(() => {
+        if (!isOwner || !companyId) return null;
+        return query(collection(firestore, 'applications'), where('companyId', '==', companyId));
+    }, [firestore, companyId, isOwner]);
     const { data: applications, loading: applicationsLoading } = useCollection<Application>('applications', applicationsQuery);
 
-    const loading = companyLoading || jobsLoading || reviewsLoading || salariesLoading || applicationsLoading;
+    const loading = companyLoading || jobsLoading || reviewsLoading || salariesLoading || (isOwner && applicationsLoading);
 
     const getApplicantCount = (jobId: string) => {
         if (!applications) return 0;
         return applications.filter(app => app.jobId === jobId).length;
     };
-
-    const isOwner = !!(user?.role === 'employer' && company?.ownerId === user?.uid);
-
-
-
 
   const handleSaveToggle = (jobId: string) => {
     if (!user) {
