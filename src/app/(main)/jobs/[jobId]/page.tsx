@@ -125,19 +125,9 @@ export default function JobDetailPage() {
                             <CardTitle>Apply for this position</CardTitle>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-2">
-                             {user && company && user.uid !== company.ownerId && (
-                                <>
-                                <Button size="lg" onClick={handleOpenApplyDialog}>Apply Now</Button>
-                                <Button size="lg" variant="outline" onClick={handleSaveToggle}>
-                                    <Heart className={`mr-2 ${isSaved ? "fill-red-500 text-red-500" : ""}`} />
-                                    {isSaved ? 'Saved' : 'Save Job'}
-                                </Button>
-                                </>
-                            )}
-                            {user && company && user.uid === company.ownerId && (
+                             {user && company && user.uid === company.ownerId ? (
                                 <p className="text-sm text-muted-foreground">You cannot apply to a job you posted.</p>
-                            )}
-                             {!user && (
+                            ) : (
                                 <>
                                     <Button size="lg" onClick={handleOpenApplyDialog}>Apply Now</Button>
                                     <Button size="lg" variant="outline" onClick={handleSaveToggle}>
