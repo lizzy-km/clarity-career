@@ -35,10 +35,7 @@ service cloud.firestore {
     // Application rules
     match /applications/{applicationId} {
       allow create: if request.auth != null && request.resource.data.applicantId == request.auth.uid;
-      allow read: if request.auth != null && (
-        resource.data.applicantId == request.auth.uid || 
-        get(/databases/$(database)/documents/companies/$(resource.data.companyId)).data.ownerId == request.auth.uid
-      );
+      allow read: true
       allow update: if request.auth != null && (
         resource.data.applicantId == request.auth.uid || // Applicant can update (e.g. withdraw)
         get(/databases/$(database)/documents/companies/$(resource.data.companyId)).data.ownerId == request.auth.uid // Employer can update status

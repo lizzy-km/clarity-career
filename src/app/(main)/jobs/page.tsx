@@ -176,7 +176,7 @@ function JobsPageContent() {
                 <DialogTrigger asChild>
                     <Button>Post a Job</Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[625px]">
+                <DialogContent className="sm:max-w-[625px] max-h-[100%] overflow-scroll ">
                     <DialogHeader>
                         <DialogTitle>Post a New Job</DialogTitle>
                         <DialogDescription>Fill out the form below to post a new job opening.</DialogDescription>
