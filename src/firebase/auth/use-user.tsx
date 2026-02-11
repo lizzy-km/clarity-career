@@ -25,7 +25,7 @@ export function useUser() {
     console.log('bbbbb',loading, profileLoading);
 
 
-  const finishedLoading = !loading ;
+  const finishedLoading = !loading && !profileLoading;
   const profile = user ? userProfile : null;
 
   return { user: profile, rawUser: user, loading: !finishedLoading };
