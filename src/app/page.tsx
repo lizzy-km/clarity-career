@@ -29,7 +29,7 @@ function HomeHeader() {
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
       scrolled ? "bg-background/80 backdrop-blur-sm border-b" : "bg-transparent"
     )}>
-      <div className="container mx-auto flex h-20 items-center justify-between">
+      <div className="container px-4 mx-auto flex h-20 items-center justify-between">
         <Logo className={cn(scrolled ? "text-primary" : "text-white drop-shadow-md")} />
         <div className="flex items-center gap-4">
             <nav className="hidden md:flex items-center gap-6">
@@ -178,7 +178,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="bg-primary text-primary-foreground">
+      <footer className="bg-primary px-4 text-primary-foreground">
         <div className="container mx-auto py-8 flex flex-col md:flex-row justify-between items-center text-sm">
           <p className="text-primary-foreground/80">&copy; {new Date().getFullYear()} ClarityCareer. All rights reserved.</p>
           <div className="flex gap-4 mt-4 md:mt-0">
