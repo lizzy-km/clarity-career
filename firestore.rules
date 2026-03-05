@@ -7,6 +7,7 @@ service cloud.firestore {
     match /jobs/{jobId} {
       allow read: if true;
       allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'employer';
+      allow update : if request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'employee' || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'employer') 
     }
     match /companies/{companyId} {
       allow read: if true;
@@ -34,7 +35,7 @@ service cloud.firestore {
 
     // Application rules
     match /applications/{applicationId} {
-      allow create: if request.auth != null && request.resource.data.applicantId == request.auth.uid;
+      allow create: if request.auth != null && (request.resource.data.applicantId == request.auth.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'employee' );
       allow read: true
       allow update: if request.auth != null && (
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'employee' ||
